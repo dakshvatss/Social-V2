@@ -17,6 +17,9 @@ from schemas import (
 )
 from cache import cache_get, cache_set, invalidate_prefix, close_redis
 
+import time
+from fastapi import Request
+
 app = FastAPI(title="Social Profiles Manager", version="2.0.0")
 
 app.add_middleware(
@@ -541,6 +544,13 @@ async def export_csv(
         media_type="text/csv",
         headers={"Content-Disposition": 'attachment; filename="export.csv"'},
     )
+@app.middleware("http")
+async def timer_middleware(request: Request, call_next):
+    start = time.time()
+    response = await call_next(request)
+    duration = time.time() - start
+    print(f"🔥 {request.method} {request.url.path} took {duration:.4f}s")
+    return response
 
 
 if __name__ == "__main__":
