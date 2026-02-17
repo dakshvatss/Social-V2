@@ -4,7 +4,7 @@ A scalable FastAPI + PostgreSQL + Redis backend for managing social media profil
 
 ---
 
-## What changed from v1
+## What changedd from v1
 
 ### database.py
 - Switched from `create_engine` (sync) to `create_async_engine` (async) using `asyncpg`
