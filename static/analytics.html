@@ -89,6 +89,7 @@
             letter-spacing: 0.3px;
             transition: all 0.15s;
             white-space: nowrap;
+            text-decoration: none;
         }
 
         .btn-primary {
@@ -201,7 +202,7 @@
 
         .stats-row {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
             gap: 12px;
         }
 
@@ -226,6 +227,10 @@
             font-size: 18px;
             font-weight: 600;
             color: var(--accent);
+        }
+
+        .stat-value.verified-color {
+            color: #60a5fa;
         }
 
         .charts-grid {
@@ -377,12 +382,16 @@
                     <div class="stat-value" id="stat-total-followers">—</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">Avg/Profile</div>
+                    <div class="stat-label">Avg / Profile</div>
                     <div class="stat-value" id="stat-avg-followers">—</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-label">Active %</div>
                     <div class="stat-value" id="stat-active-pct">—</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">✓ Verified</div>
+                    <div class="stat-value verified-color" id="stat-verified">—</div>
                 </div>
             </div>
 
@@ -519,10 +528,11 @@
             }
         }
 
-        // Load stats
+        // Load stats — passes current filter params so all five cards update with filters
         async function loadStats() {
             try {
-                const res = await fetch('/api/stats');
+                const qs = getQueryString();
+                const res = await fetch('/api/stats' + qs);
                 const data = await res.json();
 
                 document.getElementById('stat-total').textContent = data.total.toLocaleString();
@@ -536,6 +546,9 @@
                 const activeCount = (data.facebook?.active || 0) + (data.twitter?.active || 0) + (data.instagram?.active || 0);
                 const activePct = data.total > 0 ? Math.round((activeCount / (data.total * 3)) * 100) : 0;
                 document.getElementById('stat-active-pct').textContent = activePct + '%';
+
+                const verifiedCount = (data.facebook?.verified || 0) + (data.twitter?.verified || 0) + (data.instagram?.verified || 0);
+                document.getElementById('stat-verified').textContent = verifiedCount.toLocaleString();
             } catch (e) {
                 console.error('Error loading stats:', e);
             }
@@ -743,9 +756,8 @@
             }
         }
 
-        // Refresh all charts
+        // Refresh all charts and stat cards together
         async function refreshAllCharts() {
-            console.log('Refreshing charts with filters:', getFilters());
             await Promise.all([
                 loadStats(),
                 loadPlatformChart(),
