@@ -78,6 +78,7 @@
     white-space: nowrap;
   }
   .stat-pill .num { color: var(--accent); font-weight: 500; }
+  .stat-pill .num-verified { color: #60a5fa; font-weight: 500; }
   .header-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
 
   .btn {
@@ -85,6 +86,7 @@
     padding: 6px 14px; border-radius: 6px; border: none; cursor: pointer;
     font-family: var(--sans); font-size: 12px; font-weight: 600;
     letter-spacing: 0.3px; transition: all 0.15s; white-space: nowrap;
+    text-decoration: none;
   }
   .btn-primary  { background: var(--accent); color: #000; }
   .btn-primary:hover  { background: #ffb822; }
@@ -431,7 +433,7 @@
   <div class="header-divider"></div>
   <div class="stat-pill">Total <span class="num" id="hdr-total">—</span></div>
   <div class="stat-pill">🟢 Active <span class="num" id="hdr-active">—</span></div>
-  <div class="stat-pill">✓ Verified <span class="num" id="hdr-verified">—</span></div>
+  <div class="stat-pill">✓ Verified <span class="num-verified" id="hdr-verified">—</span></div>
   <div class="header-actions">
     <a href="/analytics" class="btn btn-ghost btn-sm">📊 Analytics</a>
     <button class="btn btn-ghost btn-sm" id="btn-export">⬇ Export CSV</button>
@@ -768,7 +770,6 @@ function boolToSelectVal(val) {
 }
 
 // ── BUILD PARAMS ──────────────────────────────────────────────────────────────
-// Single source of truth for all filter state → used by grid, stats, and export.
 function buildFilterParams() {
   const p = new URLSearchParams();
   const s = document.getElementById('f-search').value.trim();
@@ -812,27 +813,37 @@ function showToast(msg, type = 'info') {
 }
 
 // ── STATS ─────────────────────────────────────────────────────────────────────
-// Now passes current filter params so header + sidebar update with active filters.
+// AbortController cancels any in-flight stats request before issuing a new one,
+// preventing a stale (cached/fast) response from overwriting a fresh filtered one.
+let _statsController = null;
+
 async function loadStats() {
+  if (_statsController) _statsController.abort();
+  _statsController = new AbortController();
+  const { signal } = _statsController;
+
   try {
-    const qs   = buildFilterParams().toString();
-    const url  = qs ? `/api/stats?${qs}` : '/api/stats';
-    const data = await fetch(url).then(r => r.json());
+    const qs  = buildFilterParams().toString();
+    const url = qs ? `/api/stats?${qs}` : '/api/stats';
+    const res  = await fetch(url, { signal, cache: 'no-store' });
+    const data = await res.json();
 
-    document.getElementById('hdr-total').textContent = (data.total ?? 0).toLocaleString();
-
-    const active   = (data.facebook.active || 0) + (data.twitter.active || 0) + (data.instagram.active || 0);
+    // Header pills
+    document.getElementById('hdr-total').textContent    = (data.total ?? 0).toLocaleString();
+    const active   = (data.facebook.active   || 0) + (data.twitter.active   || 0) + (data.instagram.active   || 0);
     const verified = (data.facebook.verified || 0) + (data.twitter.verified || 0) + (data.instagram.verified || 0);
     document.getElementById('hdr-active').textContent   = active.toLocaleString();
     document.getElementById('hdr-verified').textContent = verified.toLocaleString();
 
+    // Sidebar Platform Stats — followers + active count per platform
     document.getElementById('ps-fb-followers').textContent = fmtNum(data.facebook.followers);
-    document.getElementById('ps-fb-active').textContent    = `${(data.facebook.active || 0).toLocaleString()} active`;
+    document.getElementById('ps-fb-active').textContent    = `${(data.facebook.active   || 0).toLocaleString()} active`;
     document.getElementById('ps-tw-followers').textContent = fmtNum(data.twitter.followers);
-    document.getElementById('ps-tw-active').textContent    = `${(data.twitter.active || 0).toLocaleString()} active`;
+    document.getElementById('ps-tw-active').textContent    = `${(data.twitter.active    || 0).toLocaleString()} active`;
     document.getElementById('ps-ig-followers').textContent = fmtNum(data.instagram.followers);
-    document.getElementById('ps-ig-active').textContent    = `${(data.instagram.active || 0).toLocaleString()} active`;
+    document.getElementById('ps-ig-active').textContent    = `${(data.instagram.active  || 0).toLocaleString()} active`;
   } catch (e) {
+    if (e.name === 'AbortError') return; // intentionally cancelled — ignore
     console.error('Stats error:', e);
   }
 }
@@ -943,7 +954,7 @@ function initGrid() {
 function resetAndLoad() {
   state.cursorStack = [null];
   state.pageIndex   = 0;
-  // Run grid load and stats refresh in parallel every time filters change.
+  // Grid and stats always refresh together so every number on screen is consistent.
   loadPage();
   loadStats();
 }
