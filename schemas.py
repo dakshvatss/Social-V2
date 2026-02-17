@@ -33,21 +33,11 @@ class ProfileBase(BaseModel):
 
 # ── Create ─────────────────────────────────────────────────────────────────────
 class ProfileCreate(ProfileBase):
-    """At minimum, a profile must have a name."""
+    """At minimum, a profile must have a name. Social media IDs are optional."""
     name: str = Field(..., min_length=1, max_length=500)
 
-    @model_validator(mode="after")
-    def must_have_at_least_one_platform(self) -> "ProfileCreate":
-        has_social = any([
-            self.facebook_id,
-            self.twitter_id,
-            self.instagram_id,
-        ])
-        if not has_social:
-            raise ValueError(
-                "At least one social media ID (facebook_id, twitter_id, instagram_id) is required."
-            )
-        return self
+    # REMOVED: must_have_at_least_one_platform validator — it was too strict
+    # and caused 422 errors for legitimate profiles with no social IDs yet.
 
 
 # ── Update ─────────────────────────────────────────────────────────────────────
