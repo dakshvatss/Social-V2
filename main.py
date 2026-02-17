@@ -6,7 +6,7 @@ from fastapi import FastAPI, Depends, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
-from sqlalchemy import func, select, delete, or_, and_, asc, desc, case, text
+from sqlalchemy import func, select, delete, or_, asc, desc, case
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import Base, engine, get_db
@@ -15,7 +15,7 @@ from schemas import (
     ProfileCreate, ProfileUpdate, ProfileResponse,
     ProfileListResponse, BulkDeleteRequest,
 )
-from cache import cache_response, invalidate_prefix, close_redis
+from cache import cache_get, cache_set, invalidate_prefix, close_redis
 
 # ── Bootstrap ──────────────────────────────────────────────────────────────────
 app = FastAPI(title="Social Profiles Manager", version="2.0.0")
@@ -62,26 +62,29 @@ ANALYTICS_TTL = 300   # 5 minutes  — chart data
 OPTIONS_TTL   = 600   # 10 minutes — filter dropdowns (change less often)
 
 
-def _build_fts_filter(search: str):
+def _build_search_filter(search: str):
     """
-    Return a SQLAlchemy filter clause using PostgreSQL full-text search.
-    Requires the GIN index created in the Alembic migration.
+    Case-insensitive partial match across name, constituency,
+    designation, zone, email and all social media IDs.
+    Works without any special index — fast enough for local use.
     """
-    tsv = func.to_tsvector(
-        "english",
-        func.coalesce(SocialProfile.name,         "") + " " +
-        func.coalesce(SocialProfile.constituency,  "") + " " +
-        func.coalesce(SocialProfile.designation,   "") + " " +
-        func.coalesce(SocialProfile.zone,          "") + " " +
-        func.coalesce(SocialProfile.email_id,      ""),
+    term = f"%{search}%"
+    return or_(
+        SocialProfile.name.ilike(term),
+        SocialProfile.constituency.ilike(term),
+        SocialProfile.designation.ilike(term),
+        SocialProfile.zone.ilike(term),
+        SocialProfile.email_id.ilike(term),
+        SocialProfile.facebook_id.ilike(term),
+        SocialProfile.twitter_id.ilike(term),
+        SocialProfile.instagram_id.ilike(term),
     )
-    return tsv.match(search)
 
 
 def _apply_filters(stmt, search, zone, party_district, constituency,
                    designation, active_only, verified_only):
     if search:
-        stmt = stmt.where(_build_fts_filter(search))
+        stmt = stmt.where(_build_search_filter(search))
     if zone:
         stmt = stmt.where(SocialProfile.zone == zone)
     if party_district:
@@ -255,12 +258,15 @@ async def bulk_delete(body: BulkDeleteRequest, db: AsyncSession = Depends(get_db
 
 # ── Stats — single consolidated query ─────────────────────────────────────────
 @app.get("/api/stats")
-@cache_response(prefix="stats", ttl=STATS_TTL)
 async def stats(db: AsyncSession = Depends(get_db)):
     """
     All aggregate stats in ONE round-trip using conditional aggregation.
     Previously this made 8+ separate queries.
     """
+    cached = await cache_get("stats:all")
+    if cached:
+        return cached
+
     stmt = select(
         func.count(SocialProfile.id).label("total"),
 
@@ -298,7 +304,7 @@ async def stats(db: AsyncSession = Depends(get_db)):
     )
     zone_rows = (await db.execute(zone_stmt)).all()
 
-    return {
+    result = {
         "total": row.total,
         "facebook": {
             "active":    int(row.fb_active   or 0),
@@ -318,22 +324,12 @@ async def stats(db: AsyncSession = Depends(get_db)):
         "by_designation": [{"label": d or "Unknown", "count": c} for d, c in desig_rows],
         "by_zone":        [{"label": z or "Unknown", "count": c} for z, c in zone_rows],
     }
-
-
-# ── Analytics helpers ──────────────────────────────────────────────────────────
-def _analytics_params(
-    zone:           Optional[str] = None,
-    party_district: Optional[str] = None,
-    constituency:   Optional[str] = None,
-    designation:    Optional[str] = None,
-):
-    """Shared query param signature for all analytics endpoints."""
-    return zone, party_district, constituency, designation
+    await cache_set("stats:all", result, ttl=STATS_TTL)
+    return result
 
 
 # ── Platform comparison ────────────────────────────────────────────────────────
 @app.get("/api/analytics/platform-comparison")
-@cache_response(prefix="analytics", ttl=ANALYTICS_TTL)
 async def platform_comparison(
     zone:           Optional[str] = None,
     party_district: Optional[str] = None,
@@ -341,14 +337,19 @@ async def platform_comparison(
     designation:    Optional[str] = None,
     db: AsyncSession = Depends(get_db),
 ):
+    cache_key  = f"analytics:platform:{zone}:{party_district}:{constituency}:{designation}"
+    cached     = await cache_get(cache_key)
+    if cached:
+        return cached
+
     stmt = select(
         func.avg(SocialProfile.facebook_followers).label("fb_avg"),
         func.avg(SocialProfile.twitter_followers).label("tw_avg"),
         func.avg(SocialProfile.instagram_followers).label("ig_avg"),
     )
-    stmt = _apply_filters(stmt, None, zone, party_district, constituency, designation, False, False)
-    row  = (await db.execute(stmt)).one()
-    return {
+    stmt   = _apply_filters(stmt, None, zone, party_district, constituency, designation, False, False)
+    row    = (await db.execute(stmt)).one()
+    result = {
         "labels":   ["Facebook", "Twitter", "Instagram"],
         "datasets": [{
             "label":           "Avg Followers",
@@ -356,11 +357,12 @@ async def platform_comparison(
             "backgroundColor": ["#1877F2", "#1DA1F2", "#E1306C"],
         }],
     }
+    await cache_set(cache_key, result, ttl=ANALYTICS_TTL)
+    return result
 
 
 # ── Top profiles — pure SQL, no Python sorting ────────────────────────────────
 @app.get("/api/analytics/top-profiles")
-@cache_response(prefix="analytics", ttl=ANALYTICS_TTL)
 async def top_profiles(
     zone:           Optional[str] = None,
     party_district: Optional[str] = None,
@@ -368,6 +370,11 @@ async def top_profiles(
     designation:    Optional[str] = None,
     db: AsyncSession = Depends(get_db),
 ):
+    cache_key = f"analytics:top:{zone}:{party_district}:{constituency}:{designation}"
+    cached    = await cache_get(cache_key)
+    if cached:
+        return cached
+
     total_followers = (
         func.coalesce(SocialProfile.facebook_followers,  0) +
         func.coalesce(SocialProfile.twitter_followers,   0) +
@@ -379,14 +386,13 @@ async def top_profiles(
         .order_by(desc("total"))
         .limit(15)
     )
-    stmt = _apply_filters(stmt, None, zone, party_district, constituency, designation, False, False)
-    rows = (await db.execute(stmt)).all()
-
+    stmt   = _apply_filters(stmt, None, zone, party_district, constituency, designation, False, False)
+    rows   = (await db.execute(stmt)).all()
     labels = [
         (r[0][:20] + "…" if len(r[0]) > 20 else r[0]) if r[0] else "Unknown"
         for r in rows
     ]
-    return {
+    result = {
         "labels":   labels,
         "datasets": [{
             "label":           "Total Followers",
@@ -394,11 +400,12 @@ async def top_profiles(
             "backgroundColor": "#36A2EB",
         }],
     }
+    await cache_set(cache_key, result, ttl=ANALYTICS_TTL)
+    return result
 
 
 # ── Active status distribution ─────────────────────────────────────────────────
 @app.get("/api/analytics/active-status")
-@cache_response(prefix="analytics", ttl=ANALYTICS_TTL)
 async def active_status_dist(
     zone:           Optional[str] = None,
     party_district: Optional[str] = None,
@@ -406,14 +413,19 @@ async def active_status_dist(
     designation:    Optional[str] = None,
     db: AsyncSession = Depends(get_db),
 ):
+    cache_key = f"analytics:active:{zone}:{party_district}:{constituency}:{designation}"
+    cached    = await cache_get(cache_key)
+    if cached:
+        return cached
+
     stmt = select(
         func.sum(case((SocialProfile.facebook_active_status  == True, 1), else_=0)).label("fb"),  # noqa: E712
         func.sum(case((SocialProfile.twitter_active_status   == True, 1), else_=0)).label("tw"),
         func.sum(case((SocialProfile.instagram_active_status == True, 1), else_=0)).label("ig"),
     )
-    stmt = _apply_filters(stmt, None, zone, party_district, constituency, designation, False, False)
-    row  = (await db.execute(stmt)).one()
-    return {
+    stmt   = _apply_filters(stmt, None, zone, party_district, constituency, designation, False, False)
+    row    = (await db.execute(stmt)).one()
+    result = {
         "labels":   ["Facebook", "Twitter", "Instagram"],
         "datasets": [{
             "label":           "Active Profiles",
@@ -421,11 +433,12 @@ async def active_status_dist(
             "backgroundColor": ["#1877F2", "#1DA1F2", "#E1306C"],
         }],
     }
+    await cache_set(cache_key, result, ttl=ANALYTICS_TTL)
+    return result
 
 
 # ── Verified status distribution ───────────────────────────────────────────────
 @app.get("/api/analytics/verified-status")
-@cache_response(prefix="analytics", ttl=ANALYTICS_TTL)
 async def verified_status_dist(
     zone:           Optional[str] = None,
     party_district: Optional[str] = None,
@@ -433,14 +446,19 @@ async def verified_status_dist(
     designation:    Optional[str] = None,
     db: AsyncSession = Depends(get_db),
 ):
+    cache_key = f"analytics:verified:{zone}:{party_district}:{constituency}:{designation}"
+    cached    = await cache_get(cache_key)
+    if cached:
+        return cached
+
     stmt = select(
         func.sum(case((SocialProfile.facebook_verified_status  == True, 1), else_=0)).label("fb"),  # noqa: E712
         func.sum(case((SocialProfile.twitter_verified_status   == True, 1), else_=0)).label("tw"),
         func.sum(case((SocialProfile.instagram_verified_status == True, 1), else_=0)).label("ig"),
     )
-    stmt = _apply_filters(stmt, None, zone, party_district, constituency, designation, False, False)
-    row  = (await db.execute(stmt)).one()
-    return {
+    stmt   = _apply_filters(stmt, None, zone, party_district, constituency, designation, False, False)
+    row    = (await db.execute(stmt)).one()
+    result = {
         "labels":   ["Facebook", "Twitter", "Instagram"],
         "datasets": [{
             "label":           "Verified Profiles",
@@ -448,11 +466,12 @@ async def verified_status_dist(
             "backgroundColor": ["#1877F2", "#1DA1F2", "#E1306C"],
         }],
     }
+    await cache_set(cache_key, result, ttl=ANALYTICS_TTL)
+    return result
 
 
 # ── Followers by zone ──────────────────────────────────────────────────────────
 @app.get("/api/analytics/zone-followers")
-@cache_response(prefix="analytics", ttl=ANALYTICS_TTL)
 async def zone_followers(
     zone:           Optional[str] = None,
     party_district: Optional[str] = None,
@@ -460,6 +479,11 @@ async def zone_followers(
     designation:    Optional[str] = None,
     db: AsyncSession = Depends(get_db),
 ):
+    cache_key = f"analytics:zone:{zone}:{party_district}:{constituency}:{designation}"
+    cached    = await cache_get(cache_key)
+    if cached:
+        return cached
+
     total_col = (
         func.coalesce(SocialProfile.facebook_followers,  0) +
         func.coalesce(SocialProfile.twitter_followers,   0) +
@@ -471,9 +495,9 @@ async def zone_followers(
         .order_by(desc("total"))
         .limit(12)
     )
-    stmt = _apply_filters(stmt, None, zone, party_district, constituency, designation, False, False)
-    rows = (await db.execute(stmt)).all()
-    return {
+    stmt   = _apply_filters(stmt, None, zone, party_district, constituency, designation, False, False)
+    rows   = (await db.execute(stmt)).all()
+    result = {
         "labels":   [r[0] or "Unknown" for r in rows],
         "datasets": [{
             "label":           "Total Followers by Zone",
@@ -481,11 +505,12 @@ async def zone_followers(
             "backgroundColor": "#FFCE56",
         }],
     }
+    await cache_set(cache_key, result, ttl=ANALYTICS_TTL)
+    return result
 
 
 # ── Profiles by designation ────────────────────────────────────────────────────
 @app.get("/api/analytics/designation-count")
-@cache_response(prefix="analytics", ttl=ANALYTICS_TTL)
 async def designation_count(
     zone:           Optional[str] = None,
     party_district: Optional[str] = None,
@@ -493,15 +518,20 @@ async def designation_count(
     designation:    Optional[str] = None,
     db: AsyncSession = Depends(get_db),
 ):
+    cache_key = f"analytics:desig:{zone}:{party_district}:{constituency}:{designation}"
+    cached    = await cache_get(cache_key)
+    if cached:
+        return cached
+
     stmt = (
         select(SocialProfile.designation, func.count(SocialProfile.id).label("cnt"))
         .group_by(SocialProfile.designation)
         .order_by(desc("cnt"))
         .limit(10)
     )
-    stmt = _apply_filters(stmt, None, zone, party_district, constituency, designation, False, False)
-    rows = (await db.execute(stmt)).all()
-    return {
+    stmt   = _apply_filters(stmt, None, zone, party_district, constituency, designation, False, False)
+    rows   = (await db.execute(stmt)).all()
+    result = {
         "labels":   [r[0] or "Unknown" for r in rows],
         "datasets": [{
             "label":           "Profiles by Designation",
@@ -509,22 +539,29 @@ async def designation_count(
             "backgroundColor": "#4BC0C0",
         }],
     }
+    await cache_set(cache_key, result, ttl=ANALYTICS_TTL)
+    return result
 
 
 # ── Filter options ─────────────────────────────────────────────────────────────
 @app.get("/api/filter-options")
-@cache_response(prefix="options", ttl=OPTIONS_TTL)
 async def filter_options(db: AsyncSession = Depends(get_db)):
+    cached = await cache_get("options:all")
+    if cached:
+        return cached
+
     async def distinct(col):
         stmt = select(col).distinct().where(col.isnot(None)).order_by(col)
         return [r[0] for r in (await db.execute(stmt)).all()]
 
-    return {
+    result = {
         "zones":           await distinct(SocialProfile.zone),
         "party_districts": await distinct(SocialProfile.party_district),
         "constituencies":  await distinct(SocialProfile.constituency),
         "designations":    await distinct(SocialProfile.designation),
     }
+    await cache_set("options:all", result, ttl=OPTIONS_TTL)
+    return result
 
 
 # ── CSV Export ─────────────────────────────────────────────────────────────────
@@ -569,4 +606,4 @@ async def export_csv(
 # ── Entrypoint ─────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=5000, reload=True)
+    uvicorn.run("main:app", host="127.0.0.1", port=5000, reload=True)

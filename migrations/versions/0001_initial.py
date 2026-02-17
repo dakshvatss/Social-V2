@@ -52,8 +52,8 @@ def upgrade() -> None:
         """
         UPDATE public.social_profiles
         SET dob_date = CASE
-            WHEN dob IS NULL OR TRIM(dob) = '' THEN NULL
-            ELSE dob::date
+            WHEN dob IS NULL OR TRIM(dob::text) = '' THEN NULL
+            ELSE dob::text::date
         END
         """
     )
