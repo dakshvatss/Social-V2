@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics & Visualizations</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:        #080d1a;
+            --surface:   #0e1525;
+            --surface2:  #151f35;
+            --surface3:  #1c2a45;
+            --border:    #1e2e4a;
+            --border2:   #243450;
+            --accent:    #f0a500;
+            --accent2:   #3d8ef0;
+            --accent3:   #8b5cf6;
+            --success:   #10b981;
+            --danger:    #ef4444;
+            --warning:   #f59e0b;
+            --text:      #e2eaf8;
+            --text2:     #8fa3c4;
+            --text3:     #4d6584;
+            --mono:      'JetBrains Mono', monospace;
+            --sans:      'Barlow', sans-serif;
+            --cond:      'Barlow Condensed', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--sans);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ─── Header ─── */
+        .header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 20px;
+            flex-shrink: 0;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header h1 {
+            font-family: var(--cond);
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: var(--accent);
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-family: var(--sans);
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            background: #ffb822;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text2);
+            border: 1px solid var(--border2);
+        }
+
+        .btn-ghost:hover {
+            background: var(--surface3);
+            color: var(--text);
+        }
+
+        /* ─── Main Content ─── */
+        .container {
+            flex: 1;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+        }
+
+        /* ─── Sidebar (Filters) ─── */
+        .sidebar {
+            width: 220px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            flex-shrink: 0;
+            height: fit-content;
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+
+        .sidebar-label {
+            font-family: var(--cond);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--accent);
+            letter-spacing: 0.5px;
+            margin: 12px 0 8px 0;
+        }
+
+        .filter-group {
+            margin-bottom: 16px;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            width: 100%;
+            background: var(--surface2);
+            border: 1px solid var(--border2);
+            border-radius: 6px;
+            color: var(--text);
+            padding: 6px 10px;
+            font-family: var(--sans);
+            font-size: 12px;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        .filter-group input:focus,
+        .filter-group select:focus {
+            border-color: var(--accent);
+        }
+
+        .filter-group select option {
+            background: var(--surface2);
+        }
+
+        .btn-reset {
+            width: 100%;
+            padding: 8px;
+            background: var(--surface2);
+            border: 1px solid var(--border2);
+            border-radius: 6px;
+            color: var(--text2);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-reset:hover {
+            background: var(--surface3);
+            color: var(--text);
+        }
+
+        /* ─── Charts Area ─── */
+        .charts-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: var(--surface2);
+            border: 1px solid var(--border2);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .stat-label {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--text3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-family: var(--mono);
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+        }
+
+        .chart-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .chart-card h2 {
+            font-family: var(--cond);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 16px;
+            letter-spacing: 0.3px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 320px;
+            width: 100%;
+        }
+
+        .chart-container.wide {
+            height: 380px;
+        }
+
+        canvas {
+            max-height: 100%;
+        }
+
+        /* ─── Footer ─── */
+        .footer {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: 16px 20px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text2);
+            margin-top: auto;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--accent2);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                max-height: none;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <div>
+                <h1>📊 Analytics</h1>
+            </div>
+            <div class="header-controls">
+                <button class="btn btn-ghost" onclick="refreshAllCharts()">🔄 Refresh</button>
+                <a href="/" class="btn btn-primary">← Dashboard</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Sidebar (Filters) -->
+        <aside class="sidebar">
+            <div class="sidebar-label">Filters</div>
+
+            <div class="filter-group">
+                <label class="sidebar-label">Zone</label>
+                <select id="filter-zone" onchange="refreshAllCharts()">
+                    <option value="">All Zones</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="sidebar-label">District</label>
+                <select id="filter-district" onchange="refreshAllCharts()">
+                    <option value="">All Districts</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="sidebar-label">Constituency</label>
+                <select id="filter-constituency" onchange="refreshAllCharts()">
+                    <option value="">All Constituencies</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="sidebar-label">Designation</label>
+                <select id="filter-designation" onchange="refreshAllCharts()">
+                    <option value="">All Designations</option>
+                </select>
+            </div>
+
+            <button class="btn-reset" onclick="resetFilters()">Reset Filters</button>
+        </aside>
+
+        <!-- Charts Area -->
+        <div class="charts-area">
+            <!-- Stats Row -->
+            <div class="stats-row" id="stats-container">
+                <div class="stat-card">
+                    <div class="stat-label">Total Profiles</div>
+                    <div class="stat-value" id="stat-total">—</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Followers</div>
+                    <div class="stat-value" id="stat-total-followers">—</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Avg/Profile</div>
+                    <div class="stat-value" id="stat-avg-followers">—</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Active %</div>
+                    <div class="stat-value" id="stat-active-pct">—</div>
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h2>📱 Platform Comparison (Avg)</h2>
+                    <div class="chart-container">
+                        <canvas id="platformChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h2>✅ Active Profiles</h2>
+                    <div class="chart-container">
+                        <canvas id="activeChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h2>⭐ Verified Profiles</h2>
+                    <div class="chart-container">
+                        <canvas id="verifiedChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h2>👥 Top 15 Profiles</h2>
+                    <div class="chart-container wide">
+                        <canvas id="topProfilesChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h2>📍 Followers by Zone</h2>
+                    <div class="chart-container wide">
+                        <canvas id="zoneFollowersChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h2>💼 Profiles by Designation</h2>
+                    <div class="chart-container wide">
+                        <canvas id="designationChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="footer-links">
+            <span>📊 Social Profiles Intel</span>
+            <span>•</span>
+            <a href="/">📋 Dashboard</a>
+            <span>•</span>
+            <a href="/analytics">📊 Analytics</a>
+            <span>•</span>
+            <a href="/docs">📖 API Docs</a>
+        </div>
+    </div>
+
+    <script>
+        const charts = {};
+
+        // Get filter values
+        function getFilters() {
+            return {
+                zone: document.getElementById('filter-zone').value,
+                party_district: document.getElementById('filter-district').value,
+                constituency: document.getElementById('filter-constituency').value,
+                designation: document.getElementById('filter-designation').value,
+            };
+        }
+
+        // Build query string from filters
+        function getQueryString(filters = null) {
+            filters = filters || getFilters();
+            const params = new URLSearchParams();
+            if (filters.zone) params.append('zone', filters.zone);
+            if (filters.party_district) params.append('party_district', filters.party_district);
+            if (filters.constituency) params.append('constituency', filters.constituency);
+            if (filters.designation) params.append('designation', filters.designation);
+            return params.toString() ? '?' + params.toString() : '';
+        }
+
+        // Format numbers
+        function formatNumber(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num.toString();
+        }
+
+        // Load filter options
+        async function loadFilterOptions() {
+            try {
+                const res = await fetch('/api/filter-options');
+                const data = await res.json();
+
+                const zoneSelect = document.getElementById('filter-zone');
+                data.zones.forEach(z => {
+                    const opt = document.createElement('option');
+                    opt.value = z;
+                    opt.textContent = z;
+                    zoneSelect.appendChild(opt);
+                });
+
+                const districtSelect = document.getElementById('filter-district');
+                data.party_districts.forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d;
+                    opt.textContent = d;
+                    districtSelect.appendChild(opt);
+                });
+
+                const constituencySelect = document.getElementById('filter-constituency');
+                data.constituencies.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c;
+                    opt.textContent = c;
+                    constituencySelect.appendChild(opt);
+                });
+
+                const designationSelect = document.getElementById('filter-designation');
+                data.designations.forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d;
+                    opt.textContent = d;
+                    designationSelect.appendChild(opt);
+                });
+            } catch (e) {
+                console.error('Error loading filter options:', e);
+            }
+        }
+
+        // Load stats
+        async function loadStats() {
+            try {
+                const res = await fetch('/api/stats');
+                const data = await res.json();
+
+                document.getElementById('stat-total').textContent = data.total.toLocaleString();
+
+                const totalFollowers = (data.facebook?.followers || 0) + (data.twitter?.followers || 0) + (data.instagram?.followers || 0);
+                document.getElementById('stat-total-followers').textContent = formatNumber(totalFollowers);
+
+                const avgFollowers = data.total > 0 ? Math.round(totalFollowers / data.total) : 0;
+                document.getElementById('stat-avg-followers').textContent = formatNumber(avgFollowers);
+
+                const activeCount = (data.facebook?.active || 0) + (data.twitter?.active || 0) + (data.instagram?.active || 0);
+                const activePct = data.total > 0 ? Math.round((activeCount / (data.total * 3)) * 100) : 0;
+                document.getElementById('stat-active-pct').textContent = activePct + '%';
+            } catch (e) {
+                console.error('Error loading stats:', e);
+            }
+        }
+
+        // Create or update chart
+        function createOrUpdateChart(ctx, config) {
+            if (charts[ctx.id]) {
+                charts[ctx.id].data = config.data;
+                charts[ctx.id].options = config.options;
+                charts[ctx.id].update('none');
+            } else {
+                charts[ctx.id] = new Chart(ctx, config);
+            }
+        }
+
+        // Platform Comparison Chart
+        async function loadPlatformChart() {
+            try {
+                const qs = getQueryString();
+                const res = await fetch('/api/analytics/platform-comparison' + qs);
+                const data = await res.json();
+                const ctx = document.getElementById('platformChart');
+
+                createOrUpdateChart(ctx, {
+                    type: 'bar',
+                    data: data,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: (value) => formatNumber(value),
+                                    color: '#8fa3c4'
+                                },
+                                grid: { color: '#1e2e4a' }
+                            },
+                            x: { ticks: { color: '#8fa3c4' }, grid: { color: '#1e2e4a' } }
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error('Error loading platform chart:', e);
+            }
+        }
+
+        // Active Status Chart
+        async function loadActiveChart() {
+            try {
+                const qs = getQueryString();
+                const res = await fetch('/api/analytics/active-status' + qs);
+                const data = await res.json();
+                const ctx = document.getElementById('activeChart');
+
+                createOrUpdateChart(ctx, {
+                    type: 'bar',
+                    data: data,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { color: '#8fa3c4' },
+                                grid: { color: '#1e2e4a' }
+                            },
+                            x: { ticks: { color: '#8fa3c4' }, grid: { color: '#1e2e4a' } }
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error('Error loading active chart:', e);
+            }
+        }
+
+        // Verified Status Chart
+        async function loadVerifiedChart() {
+            try {
+                const qs = getQueryString();
+                const res = await fetch('/api/analytics/verified-status' + qs);
+                const data = await res.json();
+                const ctx = document.getElementById('verifiedChart');
+
+                createOrUpdateChart(ctx, {
+                    type: 'bar',
+                    data: data,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { color: '#8fa3c4' },
+                                grid: { color: '#1e2e4a' }
+                            },
+                            x: { ticks: { color: '#8fa3c4' }, grid: { color: '#1e2e4a' } }
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error('Error loading verified chart:', e);
+            }
+        }
+
+        // Top Profiles Chart
+        async function loadTopProfilesChart() {
+            try {
+                const qs = getQueryString();
+                const res = await fetch('/api/analytics/top-profiles' + qs);
+                const data = await res.json();
+                const ctx = document.getElementById('topProfilesChart');
+
+                createOrUpdateChart(ctx, {
+                    type: 'bar',
+                    data: data,
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: (value) => formatNumber(value),
+                                    color: '#8fa3c4'
+                                },
+                                grid: { color: '#1e2e4a' }
+                            },
+                            y: { ticks: { color: '#8fa3c4' }, grid: { color: '#1e2e4a' } }
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error('Error loading top profiles chart:', e);
+            }
+        }
+
+        // Zone Followers Chart
+        async function loadZoneFollowersChart() {
+            try {
+                const qs = getQueryString();
+                const res = await fetch('/api/analytics/zone-followers' + qs);
+                const data = await res.json();
+                const ctx = document.getElementById('zoneFollowersChart');
+
+                createOrUpdateChart(ctx, {
+                    type: 'bar',
+                    data: data,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: (value) => formatNumber(value),
+                                    color: '#8fa3c4'
+                                },
+                                grid: { color: '#1e2e4a' }
+                            },
+                            x: { ticks: { color: '#8fa3c4' }, grid: { color: '#1e2e4a' } }
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error('Error loading zone followers chart:', e);
+            }
+        }
+
+        // Designation Chart
+        async function loadDesignationChart() {
+            try {
+                const qs = getQueryString();
+                const res = await fetch('/api/analytics/designation-count' + qs);
+                const data = await res.json();
+                const ctx = document.getElementById('designationChart');
+
+                createOrUpdateChart(ctx, {
+                    type: 'bar',
+                    data: data,
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                ticks: { color: '#8fa3c4' },
+                                grid: { color: '#1e2e4a' }
+                            },
+                            y: { ticks: { color: '#8fa3c4' }, grid: { color: '#1e2e4a' } }
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error('Error loading designation chart:', e);
+            }
+        }
+
+        // Refresh all charts
+        async function refreshAllCharts() {
+            console.log('Refreshing charts with filters:', getFilters());
+            await Promise.all([
+                loadStats(),
+                loadPlatformChart(),
+                loadActiveChart(),
+                loadVerifiedChart(),
+                loadTopProfilesChart(),
+                loadZoneFollowersChart(),
+                loadDesignationChart()
+            ]);
+        }
+
+        // Reset filters
+        function resetFilters() {
+            document.getElementById('filter-zone').value = '';
+            document.getElementById('filter-district').value = '';
+            document.getElementById('filter-constituency').value = '';
+            document.getElementById('filter-designation').value = '';
+            refreshAllCharts();
+        }
+
+        // Initial load
+        (async () => {
+            await loadFilterOptions();
+            await refreshAllCharts();
+        })();
+    </script>
+</body>
+</html>
