@@ -19,8 +19,12 @@ from cache import cache_get, cache_set, invalidate_prefix, close_redis
 
 import time
 from fastapi import Request
+import logging
 
 app = FastAPI(title="Social Profiles Manager", version="2.0.0")
+
+# Module logger
+logger = logging.getLogger(__name__)
 
 app.add_middleware(
     CORSMiddleware,
@@ -64,7 +68,7 @@ OPTIONS_TTL   = 600
 
 def _build_search_filter(search: str):
     term = f"%{search}%"
-    return or_(
+    filters = [
         SocialProfile.name.ilike(term),
         SocialProfile.constituency.ilike(term),
         SocialProfile.designation.ilike(term),
@@ -73,7 +77,15 @@ def _build_search_filter(search: str):
         SocialProfile.facebook_id.ilike(term),
         SocialProfile.twitter_id.ilike(term),
         SocialProfile.instagram_id.ilike(term),
-    )
+    ]
+    # If the search looks like an integer, also match against the numeric id.
+    if search.isdigit():
+        try:
+            filters.append(SocialProfile.id == int(search))
+        except Exception:
+            # If conversion fails for some reason, ignore the id filter.
+            logger.debug("_build_search_filter: failed to include id equality for search=%s", search)
+    return or_(*filters)
 
 
 def _apply_filters(stmt, search, zone, party_district, constituency,
@@ -221,26 +233,35 @@ async def update_profile(
 
 # ── Delete single ──────────────────────────────────────────────────────────────
 @app.delete("/api/profiles/{profile_id}")
-async def delete_profile(profile_id: int, db: AsyncSession = Depends(get_db)):
-    stmt = (
-        delete(SocialProfile)
-        .where(SocialProfile.id == profile_id)
-        .execution_options(synchronize_session=False)
-    )
-    result = await db.execute(stmt)
-
-    if result.rowcount == 0:
-        raise HTTPException(status_code=404, detail="Profile not found")
-
-    await db.commit()
+async def delete_profile(profile_id: str, db: AsyncSession = Depends(get_db)):
+    # The frontend may send the literal string "null" or similar when a
+    # deletion was triggered without a proper id. Accept string here and
+    # validate to return a friendly 400 instead of FastAPI's 422.
+    if profile_id is None or str(profile_id).strip().lower() in ("", "null", "none", "undefined"):
+        logger.info("delete_profile: invalid id received: %s", profile_id)
+        raise HTTPException(status_code=400, detail="Invalid profile id")
 
     try:
+        pid = int(profile_id)
+    except ValueError:
+        logger.info("delete_profile: non-integer id received: %s", profile_id)
+        raise HTTPException(status_code=400, detail="Profile id must be an integer")
+
+    p = await db.get(SocialProfile, pid)
+    if not p:
+        logger.info("delete_profile: profile not found: %s", pid)
+        raise HTTPException(status_code=404, detail="Profile not found")
+
+    try:
+        logger.info("delete_profile: deleting profile id=%s name=%s", pid, getattr(p, 'name', None))
+        await db.delete(p)
+        await db.commit()
         await invalidate_prefix("stats")
         await invalidate_prefix("analytics")
-    except Exception:
-        pass
-
-    return {"message": "Deleted"}
+        return {"message": "Deleted"}
+    except Exception as e:
+        logger.exception("delete_profile: unexpected error deleting id=%s: %s", pid, e)
+        raise HTTPException(status_code=500, detail="Failed to delete profile")
 
 
 # ── Bulk delete ────────────────────────────────────────────────────────────────

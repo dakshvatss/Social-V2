@@ -1,1238 +1,2119 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Social Profiles Intel</title>
-<script src="https://cdn.jsdelivr.net/npm/ag-grid-community@31.3.4/dist/ag-grid-community.min.js"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg:        #080d1a;
-    --surface:   #0e1525;
-    --surface2:  #151f35;
-    --surface3:  #1c2a45;
-    --border:    #1e2e4a;
-    --border2:   #243450;
-    --accent:    #f0a500;
-    --accent2:   #3d8ef0;
-    --accent3:   #8b5cf6;
-    --success:   #10b981;
-    --danger:    #ef4444;
-    --warning:   #f59e0b;
-    --text:      #e2eaf8;
-    --text2:     #8fa3c4;
-    --text3:     #4d6584;
-    --fb:        #1877F2;
-    --tw:        #1DA1F2;
-    --ig:        #E1306C;
-    --mono:      'JetBrains Mono', monospace;
-    --sans:      'Barlow', sans-serif;
-    --cond:      'Barlow Condensed', sans-serif;
-  }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Social Profiles Intel</title>
+    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community@31.3.4/dist/ag-grid-community.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500&family=Barlow:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #080d1a;
+        --surface: #0e1525;
+        --surface2: #151f35;
+        --surface3: #1c2a45;
+        --border: #1e2e4a;
+        --border2: #243450;
+        --accent: #f0a500;
+        --accent2: #3d8ef0;
+        --accent3: #8b5cf6;
+        --success: #10b981;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --text: #e2eaf8;
+        --text2: #8fa3c4;
+        --text3: #4d6584;
+        --fb: #1877f2;
+        --tw: #1da1f2;
+        --ig: #e1306c;
+        --mono: "JetBrains Mono", monospace;
+        --sans: "Barlow", sans-serif;
+        --cond: "Barlow Condensed", sans-serif;
+      }
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans);
-    font-size: 13px;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--sans);
+        font-size: 13px;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
 
-  .app-header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 0 20px;
-    height: 52px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    flex-shrink: 0;
-    z-index: 10;
-  }
-  .logo {
-    font-family: var(--cond);
-    font-weight: 800;
-    font-size: 22px;
-    letter-spacing: 1px;
-    color: var(--accent);
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-  .logo span { color: var(--text2); font-weight: 400; font-size: 14px; letter-spacing: 0; }
-  .header-divider { width: 1px; height: 28px; background: var(--border2); }
-  .stat-pill {
-    display: flex; align-items: center; gap: 6px;
-    padding: 4px 10px;
-    background: var(--surface2);
-    border: 1px solid var(--border2);
-    border-radius: 20px;
-    font-family: var(--mono);
-    font-size: 11px;
-    white-space: nowrap;
-  }
-  .stat-pill .num { color: var(--accent); font-weight: 500; }
-  .stat-pill .num-verified { color: #60a5fa; font-weight: 500; }
-  .header-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+      .app-header {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 0 20px;
+        height: 52px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-shrink: 0;
+        z-index: 10;
+      }
+      .logo {
+        font-family: var(--cond);
+        font-weight: 800;
+        font-size: 22px;
+        letter-spacing: 1px;
+        color: var(--accent);
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+      .logo span {
+        color: var(--text2);
+        font-weight: 400;
+        font-size: 14px;
+        letter-spacing: 0;
+      }
+      .header-divider {
+        width: 1px;
+        height: 28px;
+        background: var(--border2);
+      }
+      .stat-pill {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        background: var(--surface2);
+        border: 1px solid var(--border2);
+        border-radius: 20px;
+        font-family: var(--mono);
+        font-size: 11px;
+        white-space: nowrap;
+      }
+      .stat-pill .num {
+        color: var(--accent);
+        font-weight: 500;
+      }
+      .stat-pill .num-verified {
+        color: #60a5fa;
+        font-weight: 500;
+      }
+      .header-actions {
+        margin-left: auto;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
 
-  .btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 6px 14px; border-radius: 6px; border: none; cursor: pointer;
-    font-family: var(--sans); font-size: 12px; font-weight: 600;
-    letter-spacing: 0.3px; transition: all 0.15s; white-space: nowrap;
-    text-decoration: none;
-  }
-  .btn-primary  { background: var(--accent); color: #000; }
-  .btn-primary:hover  { background: #ffb822; }
-  .btn-ghost    { background: transparent; color: var(--text2); border: 1px solid var(--border2); }
-  .btn-ghost:hover { background: var(--surface3); color: var(--text); }
-  .btn-danger   { background: var(--danger); color: #fff; }
-  .btn-danger:hover  { background: #dc2626; }
-  .btn-success  { background: var(--success); color: #fff; }
-  .btn-success:hover { background: #059669; }
-  .btn-sm { padding: 4px 10px; font-size: 11px; }
-  .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        font-family: var(--sans);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        transition: all 0.15s;
+        white-space: nowrap;
+        text-decoration: none;
+      }
+      .btn-primary {
+        background: var(--accent);
+        color: #000;
+      }
+      .btn-primary:hover {
+        background: #ffb822;
+      }
+      .btn-ghost {
+        background: transparent;
+        color: var(--text2);
+        border: 1px solid var(--border2);
+      }
+      .btn-ghost:hover {
+        background: var(--surface3);
+        color: var(--text);
+      }
+      .btn-danger {
+        background: var(--danger);
+        color: #fff;
+      }
+      .btn-danger:hover {
+        background: #dc2626;
+      }
+      .btn-success {
+        background: var(--success);
+        color: #fff;
+      }
+      .btn-success:hover {
+        background: #059669;
+      }
+      .btn-sm {
+        padding: 4px 10px;
+        font-size: 11px;
+      }
+      .btn:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+      }
 
-  .app-body { flex: 1; display: flex; overflow: hidden; }
+      .app-body {
+        flex: 1;
+        display: flex;
+        overflow: hidden;
+      }
 
-  .sidebar {
-    width: 240px; min-width: 240px;
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    display: flex; flex-direction: column;
-    overflow-y: auto; flex-shrink: 0;
-  }
-  .sidebar::-webkit-scrollbar { width: 4px; }
-  .sidebar::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+      .sidebar {
+        width: 240px;
+        min-width: 240px;
+        background: var(--surface);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        flex-shrink: 0;
+      }
+      .sidebar::-webkit-scrollbar {
+        width: 4px;
+      }
+      .sidebar::-webkit-scrollbar-thumb {
+        background: var(--border2);
+        border-radius: 2px;
+      }
 
-  .sidebar-section { padding: 14px 14px 0; }
-  .sidebar-label {
-    font-family: var(--cond);
-    font-size: 10px; font-weight: 700;
-    letter-spacing: 1.5px; text-transform: uppercase;
-    color: var(--text3);
-    padding: 0 0 6px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 10px;
-  }
+      .sidebar-section {
+        padding: 14px 14px 0;
+      }
+      .sidebar-label {
+        font-family: var(--cond);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: var(--text3);
+        padding: 0 0 6px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 10px;
+      }
 
-  .filter-group { margin-bottom: 10px; }
-  .filter-group label {
-    display: block; font-size: 11px; color: var(--text2);
-    margin-bottom: 4px; font-weight: 500;
-  }
-  .filter-group input,
-  .filter-group select {
-    width: 100%;
-    background: var(--surface2);
-    border: 1px solid var(--border2);
-    border-radius: 6px;
-    color: var(--text);
-    padding: 6px 10px;
-    font-family: var(--sans); font-size: 12px;
-    outline: none; transition: border-color 0.15s;
-  }
-  .filter-group input:focus,
-  .filter-group select:focus { border-color: var(--accent); }
-  .filter-group select option { background: var(--surface2); }
+      .filter-group {
+        margin-bottom: 10px;
+      }
+      .filter-group label {
+        display: block;
+        font-size: 11px;
+        color: var(--text2);
+        margin-bottom: 4px;
+        font-weight: 500;
+      }
+      .filter-group input,
+      .filter-group select {
+        width: 100%;
+        background: var(--surface2);
+        border: 1px solid var(--border2);
+        border-radius: 6px;
+        color: var(--text);
+        padding: 6px 10px;
+        font-family: var(--sans);
+        font-size: 12px;
+        outline: none;
+        transition: border-color 0.15s;
+      }
+      .filter-group input:focus,
+      .filter-group select:focus {
+        border-color: var(--accent);
+      }
+      .filter-group select option {
+        background: var(--surface2);
+      }
 
-  .toggle-row {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 6px 0; font-size: 12px; color: var(--text2); cursor: pointer;
-  }
-  .toggle-row:hover { color: var(--text); }
-  .toggle {
-    width: 32px; height: 18px;
-    background: var(--border2); border-radius: 9px;
-    position: relative; cursor: pointer; transition: background 0.2s;
-    flex-shrink: 0;
-  }
-  .toggle.on { background: var(--accent); }
-  .toggle::after {
-    content: ''; position: absolute;
-    width: 12px; height: 12px; background: #fff;
-    border-radius: 50%; top: 3px; left: 3px;
-    transition: transform 0.2s;
-  }
-  .toggle.on::after { transform: translateX(14px); }
+      .toggle-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 6px 0;
+        font-size: 12px;
+        color: var(--text2);
+        cursor: pointer;
+      }
+      .toggle-row:hover {
+        color: var(--text);
+      }
+      .toggle {
+        width: 32px;
+        height: 18px;
+        background: var(--border2);
+        border-radius: 9px;
+        position: relative;
+        cursor: pointer;
+        transition: background 0.2s;
+        flex-shrink: 0;
+      }
+      .toggle.on {
+        background: var(--accent);
+      }
+      .toggle::after {
+        content: "";
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        background: #fff;
+        border-radius: 50%;
+        top: 3px;
+        left: 3px;
+        transition: transform 0.2s;
+      }
+      .toggle.on::after {
+        transform: translateX(14px);
+      }
 
-  .btn-reset-filters {
-    width: 100%; margin: 10px 0;
-    padding: 7px; background: transparent;
-    border: 1px dashed var(--border2); border-radius: 6px;
-    color: var(--text3); cursor: pointer; font-size: 11px;
-    font-family: var(--sans); transition: all 0.15s;
-  }
-  .btn-reset-filters:hover { border-color: var(--danger); color: var(--danger); }
+      .btn-reset-filters {
+        width: 100%;
+        margin: 10px 0;
+        padding: 7px;
+        background: transparent;
+        border: 1px dashed var(--border2);
+        border-radius: 6px;
+        color: var(--text3);
+        cursor: pointer;
+        font-size: 11px;
+        font-family: var(--sans);
+        transition: all 0.15s;
+      }
+      .btn-reset-filters:hover {
+        border-color: var(--danger);
+        color: var(--danger);
+      }
 
-  .platform-stats { padding: 0 14px 14px; }
-  .platform-row {
-    display: flex; align-items: center; gap: 8px;
-    padding: 7px 0; border-bottom: 1px solid var(--border);
-  }
-  .platform-row:last-child { border-bottom: none; }
-  .platform-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .platform-name { font-size: 11px; color: var(--text2); flex: 1; font-weight: 600; }
-  .platform-num  { font-family: var(--mono); font-size: 11px; color: var(--text); }
-  .platform-sub  { font-size: 10px; color: var(--text3); }
+      .platform-stats {
+        padding: 0 14px 14px;
+      }
+      .platform-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .platform-row:last-child {
+        border-bottom: none;
+      }
+      .platform-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .platform-name {
+        font-size: 11px;
+        color: var(--text2);
+        flex: 1;
+        font-weight: 600;
+      }
+      .platform-num {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--text);
+      }
+      .platform-sub {
+        font-size: 10px;
+        color: var(--text3);
+      }
 
-  .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+      .main-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
 
-  .grid-toolbar {
-    padding: 8px 16px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; gap: 10px;
-    flex-shrink: 0; flex-wrap: wrap; min-height: 46px;
-  }
-  .result-count { font-family: var(--mono); font-size: 11px; color: var(--text3); }
+      .grid-toolbar {
+        padding: 8px 16px;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-shrink: 0;
+        flex-wrap: wrap;
+        min-height: 46px;
+      }
+      .result-count {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--text3);
+      }
 
-  .pagination-controls {
-    display: flex; align-items: center; gap: 6px; margin-left: auto;
-  }
-  .page-btn {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 30px; height: 28px; border-radius: 6px;
-    border: 1px solid var(--border2); background: var(--surface2);
-    color: var(--text2); cursor: pointer; font-size: 13px; font-weight: 700;
-    transition: all 0.15s; flex-shrink: 0;
-  }
-  .page-btn:hover:not(:disabled) {
-    background: var(--surface3); color: var(--text); border-color: var(--accent);
-  }
-  .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-  .page-info {
-    font-family: var(--mono); font-size: 11px; color: var(--text2);
-    padding: 0 6px; white-space: nowrap;
-  }
-  .page-info strong { color: var(--accent); }
-  .page-size-select {
-    background: var(--surface2); border: 1px solid var(--border2);
-    border-radius: 6px; color: var(--text2);
-    padding: 4px 6px; font-family: var(--mono); font-size: 11px;
-    outline: none; cursor: pointer; transition: border-color 0.15s;
-  }
-  .page-size-select:focus { border-color: var(--accent); }
-  .page-size-select option { background: var(--surface2); }
-  .toolbar-left { display: flex; align-items: center; gap: 8px; }
+      .pagination-controls {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-left: auto;
+      }
+      .page-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 28px;
+        border-radius: 6px;
+        border: 1px solid var(--border2);
+        background: var(--surface2);
+        color: var(--text2);
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 700;
+        transition: all 0.15s;
+        flex-shrink: 0;
+      }
+      .page-btn:hover:not(:disabled) {
+        background: var(--surface3);
+        color: var(--text);
+        border-color: var(--accent);
+      }
+      .page-btn:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+      .page-info {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--text2);
+        padding: 0 6px;
+        white-space: nowrap;
+      }
+      .page-info strong {
+        color: var(--accent);
+      }
+      .page-size-select {
+        background: var(--surface2);
+        border: 1px solid var(--border2);
+        border-radius: 6px;
+        color: var(--text2);
+        padding: 4px 6px;
+        font-family: var(--mono);
+        font-size: 11px;
+        outline: none;
+        cursor: pointer;
+        transition: border-color 0.15s;
+      }
+      .page-size-select:focus {
+        border-color: var(--accent);
+      }
+      .page-size-select option {
+        background: var(--surface2);
+      }
+      .toolbar-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
 
-  .grid-loading-bar {
-    height: 2px; background: var(--border);
-    flex-shrink: 0; position: relative; overflow: hidden;
-  }
-  .grid-loading-bar::after {
-    content: ''; position: absolute;
-    height: 100%; width: 30%; background: var(--accent);
-    animation: loadSlide 1s ease-in-out infinite;
-    opacity: 0; transition: opacity 0.2s;
-  }
-  .grid-loading-bar.loading::after { opacity: 1; }
-  @keyframes loadSlide {
-    0%   { left: -30%; }
-    100% { left: 110%; }
-  }
+      .grid-loading-bar {
+        height: 2px;
+        background: var(--border);
+        flex-shrink: 0;
+        position: relative;
+        overflow: hidden;
+      }
+      .grid-loading-bar::after {
+        content: "";
+        position: absolute;
+        height: 100%;
+        width: 30%;
+        background: var(--accent);
+        animation: loadSlide 1s ease-in-out infinite;
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+      .grid-loading-bar.loading::after {
+        opacity: 1;
+      }
+      @keyframes loadSlide {
+        0% {
+          left: -30%;
+        }
+        100% {
+          left: 110%;
+        }
+      }
 
-  .grid-wrap { flex: 1; overflow: hidden; }
+      .grid-wrap {
+        flex: 1;
+        overflow: hidden;
+      }
 
-  .ag-theme-social {
-    --ag-background-color: var(--bg);
-    --ag-foreground-color: var(--text);
-    --ag-header-background-color: var(--surface2);
-    --ag-header-foreground-color: var(--text2);
-    --ag-odd-row-background-color: #090e1c;
-    --ag-row-hover-color: #121e36;
-    --ag-selected-row-background-color: #162040;
-    --ag-range-selection-background-color: rgba(240,165,0,0.07);
-    --ag-border-color: var(--border);
-    --ag-secondary-border-color: var(--border);
-    --ag-cell-horizontal-border: solid var(--border);
-    --ag-font-size: 12px;
-    --ag-font-family: 'Barlow', sans-serif;
-    --ag-grid-size: 4px;
-    --ag-row-height: 36px;
-    --ag-header-height: 36px;
-    --ag-column-hover-color: #0f1828;
-    --ag-input-focus-border-color: var(--accent);
-    --ag-checkbox-checked-color: var(--accent);
-    --ag-checkbox-unchecked-color: var(--border2);
-    --ag-value-change-value-highlight-background-color: rgba(240,165,0,0.2);
-    --ag-header-column-separator-color: var(--border2);
-    --ag-header-column-separator-height: 60%;
-  }
-  .ag-theme-social .ag-header-cell-text {
-    font-family: var(--cond);
-    font-size: 11px; font-weight: 600;
-    letter-spacing: 0.5px; text-transform: uppercase; color: var(--text2);
-  }
-  .ag-theme-social .ag-cell {
-    font-family: var(--mono); font-size: 11px;
-    border-right: 1px solid var(--border) !important;
-    display: flex; align-items: center;
-  }
-  .ag-theme-social .ag-paging-panel { display: none !important; }
+      .ag-theme-social {
+        --ag-background-color: var(--bg);
+        --ag-foreground-color: var(--text);
+        --ag-header-background-color: var(--surface2);
+        --ag-header-foreground-color: var(--text2);
+        --ag-odd-row-background-color: #090e1c;
+        --ag-row-hover-color: #121e36;
+        --ag-selected-row-background-color: #162040;
+        --ag-range-selection-background-color: rgba(240, 165, 0, 0.07);
+        --ag-border-color: var(--border);
+        --ag-secondary-border-color: var(--border);
+        --ag-cell-horizontal-border: solid var(--border);
+        --ag-font-size: 12px;
+        --ag-font-family: "Barlow", sans-serif;
+        --ag-grid-size: 4px;
+        --ag-row-height: 36px;
+        --ag-header-height: 36px;
+        --ag-column-hover-color: #0f1828;
+        --ag-input-focus-border-color: var(--accent);
+        --ag-checkbox-checked-color: var(--accent);
+        --ag-checkbox-unchecked-color: var(--border2);
+        --ag-value-change-value-highlight-background-color: rgba(
+          240,
+          165,
+          0,
+          0.2
+        );
+        --ag-header-column-separator-color: var(--border2);
+        --ag-header-column-separator-height: 60%;
+      }
+      .ag-theme-social .ag-header-cell-text {
+        font-family: var(--cond);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        color: var(--text2);
+      }
+      .ag-theme-social .ag-cell {
+        font-family: var(--mono);
+        font-size: 11px;
+        border-right: 1px solid var(--border) !important;
+        display: flex;
+        align-items: center;
+      }
+      .ag-theme-social .ag-paging-panel {
+        display: none !important;
+      }
 
-  .badge {
-    display: inline-block; padding: 1px 7px; border-radius: 3px;
-    font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
-    text-transform: uppercase; font-family: var(--cond);
-  }
-  .badge-active    { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
-  .badge-inactive  { background: rgba(100,116,139,0.12); color: #64748b; border: 1px solid rgba(100,116,139,0.2); }
-  .badge-verified  { background: rgba(61,142,240,0.15); color: #60a5fa; border: 1px solid rgba(61,142,240,0.3); }
-  .badge-unverified { background: rgba(100,116,139,0.1); color: #475569; border: 1px solid rgba(100,116,139,0.15); }
-  .badge-unknown   { background: transparent; color: var(--text3); }
+      .badge {
+        display: inline-block;
+        padding: 1px 7px;
+        border-radius: 3px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        font-family: var(--cond);
+      }
+      .badge-active {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+      }
+      .badge-inactive {
+        background: rgba(100, 116, 139, 0.12);
+        color: #64748b;
+        border: 1px solid rgba(100, 116, 139, 0.2);
+      }
+      .badge-verified {
+        background: rgba(61, 142, 240, 0.15);
+        color: #60a5fa;
+        border: 1px solid rgba(61, 142, 240, 0.3);
+      }
+      .badge-unverified {
+        background: rgba(100, 116, 139, 0.1);
+        color: #475569;
+        border: 1px solid rgba(100, 116, 139, 0.15);
+      }
+      .badge-unknown {
+        background: transparent;
+        color: var(--text3);
+      }
 
-  .num-cell { text-align: right; color: var(--text); font-family: var(--mono); font-size: 11px; }
-  .num-hi { color: var(--accent); }
+      .num-cell {
+        text-align: right;
+        color: var(--text);
+        font-family: var(--mono);
+        font-size: 11px;
+      }
+      .num-hi {
+        color: var(--accent);
+      }
 
-  .action-cell { display: flex; gap: 4px; align-items: center; }
-  .act-btn {
-    padding: 3px 8px; border-radius: 4px; border: none; cursor: pointer;
-    font-size: 10px; font-family: var(--sans); font-weight: 600; transition: all 0.1s;
-  }
-  .act-edit  { background: rgba(61,142,240,0.15); color: var(--accent2); }
-  .act-edit:hover { background: rgba(61,142,240,0.3); }
-  .act-del   { background: rgba(239,68,68,0.12); color: var(--danger); }
-  .act-del:hover  { background: rgba(239,68,68,0.25); }
+      .action-cell {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+      }
+      .act-btn {
+        padding: 3px 8px;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        font-size: 10px;
+        font-family: var(--sans);
+        font-weight: 600;
+        transition: all 0.1s;
+      }
+      .act-edit {
+        background: rgba(61, 142, 240, 0.15);
+        color: var(--accent2);
+      }
+      .act-edit:hover {
+        background: rgba(61, 142, 240, 0.3);
+      }
+      .act-del {
+        background: rgba(239, 68, 68, 0.12);
+        color: var(--danger);
+      }
+      .act-del:hover {
+        background: rgba(239, 68, 68, 0.25);
+      }
 
-  .modal-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.75); backdrop-filter: blur(4px);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.2s;
-  }
-  .modal-overlay.open { opacity: 1; pointer-events: all; }
-  .modal {
-    background: var(--surface); border: 1px solid var(--border2); border-radius: 12px;
-    width: min(700px, 95vw); max-height: 90vh;
-    display: flex; flex-direction: column;
-    transform: scale(0.96); transition: transform 0.2s;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-  }
-  .modal-overlay.open .modal { transform: scale(1); }
-  .modal-header {
-    padding: 18px 22px 16px; border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; gap: 12px;
-  }
-  .modal-title { font-family: var(--cond); font-weight: 700; font-size: 18px; letter-spacing: 0.5px; flex: 1; }
-  .modal-close {
-    width: 28px; height: 28px; border-radius: 6px;
-    background: transparent; border: 1px solid var(--border2);
-    color: var(--text2); cursor: pointer; font-size: 16px;
-    display: flex; align-items: center; justify-content: center; transition: all 0.15s;
-  }
-  .modal-close:hover { background: var(--danger); border-color: var(--danger); color: #fff; }
-  .modal-tabs {
-    display: flex; padding: 0 22px;
-    border-bottom: 1px solid var(--border); background: var(--surface2);
-  }
-  .modal-tab {
-    padding: 10px 16px; font-family: var(--cond);
-    font-size: 12px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
-    color: var(--text3); cursor: pointer; border: none;
-    background: transparent; border-bottom: 2px solid transparent;
-    margin-bottom: -1px; transition: all 0.15s;
-  }
-  .modal-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-  .modal-tab:hover  { color: var(--text); }
-  .modal-body { flex: 1; overflow-y: auto; padding: 20px 22px; }
-  .modal-body::-webkit-scrollbar { width: 4px; }
-  .modal-body::-webkit-scrollbar-thumb { background: var(--border2); }
-  .tab-panel { display: none; }
-  .tab-panel.active { display: block; }
-  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .form-grid .span2 { grid-column: span 2; }
-  .form-group { display: flex; flex-direction: column; gap: 5px; }
-  .form-group label {
-    font-size: 11px; color: var(--text2); font-weight: 600;
-    text-transform: uppercase; letter-spacing: 0.5px;
-  }
-  .form-group input,
-  .form-group select,
-  .form-group textarea {
-    background: var(--surface2); border: 1px solid var(--border2); border-radius: 6px;
-    color: var(--text); padding: 8px 12px;
-    font-family: var(--sans); font-size: 13px; outline: none; transition: border-color 0.15s;
-  }
-  .form-group input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.7); cursor: pointer; }
-  .form-group input:focus,
-  .form-group select:focus,
-  .form-group textarea:focus { border-color: var(--accent); }
-  .form-group select option { background: var(--surface2); }
-  .form-group textarea { resize: vertical; min-height: 72px; }
-  .platform-header {
-    display: flex; align-items: center; gap: 10px;
-    margin-bottom: 16px; padding-bottom: 12px;
-    border-bottom: 1px solid var(--border);
-  }
-  .platform-icon {
-    width: 28px; height: 28px; border-radius: 8px;
-    display: flex; align-items: center; justify-content: center; font-size: 14px;
-  }
-  .platform-icon.fb  { background: rgba(24,119,242,0.15); color: var(--fb); }
-  .platform-icon.tw  { background: rgba(29,161,242,0.15); color: var(--tw); }
-  .platform-icon.ig  { background: rgba(225,48,108,0.15); color: var(--ig); }
-  .platform-label { font-family: var(--cond); font-weight: 700; font-size: 16px; letter-spacing: 0.5px; }
-  .modal-footer {
-    padding: 14px 22px; border-top: 1px solid var(--border);
-    display: flex; align-items: center; gap: 10px; justify-content: flex-end;
-    background: var(--surface2); border-radius: 0 0 12px 12px;
-  }
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.75);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s;
+      }
+      .modal-overlay.open {
+        opacity: 1;
+        pointer-events: all;
+      }
+      .modal {
+        background: var(--surface);
+        border: 1px solid var(--border2);
+        border-radius: 12px;
+        width: min(700px, 95vw);
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+        transform: scale(0.96);
+        transition: transform 0.2s;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+      }
+      .modal-overlay.open .modal {
+        transform: scale(1);
+      }
+      .modal-header {
+        padding: 18px 22px 16px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .modal-title {
+        font-family: var(--cond);
+        font-weight: 700;
+        font-size: 18px;
+        letter-spacing: 0.5px;
+        flex: 1;
+      }
+      .modal-close {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        background: transparent;
+        border: 1px solid var(--border2);
+        color: var(--text2);
+        cursor: pointer;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.15s;
+      }
+      .modal-close:hover {
+        background: var(--danger);
+        border-color: var(--danger);
+        color: #fff;
+      }
+      .modal-tabs {
+        display: flex;
+        padding: 0 22px;
+        border-bottom: 1px solid var(--border);
+        background: var(--surface2);
+      }
+      .modal-tab {
+        padding: 10px 16px;
+        font-family: var(--cond);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        color: var(--text3);
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -1px;
+        transition: all 0.15s;
+      }
+      .modal-tab.active {
+        color: var(--accent);
+        border-bottom-color: var(--accent);
+      }
+      .modal-tab:hover {
+        color: var(--text);
+      }
+      .modal-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px 22px;
+      }
+      .modal-body::-webkit-scrollbar {
+        width: 4px;
+      }
+      .modal-body::-webkit-scrollbar-thumb {
+        background: var(--border2);
+      }
+      .tab-panel {
+        display: none;
+      }
+      .tab-panel.active {
+        display: block;
+      }
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      .form-grid .span2 {
+        grid-column: span 2;
+      }
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+      .form-group label {
+        font-size: 11px;
+        color: var(--text2);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        background: var(--surface2);
+        border: 1px solid var(--border2);
+        border-radius: 6px;
+        color: var(--text);
+        padding: 8px 12px;
+        font-family: var(--sans);
+        font-size: 13px;
+        outline: none;
+        transition: border-color 0.15s;
+      }
+      .form-group input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(0.7);
+        cursor: pointer;
+      }
+      .form-group input:focus,
+      .form-group select:focus,
+      .form-group textarea:focus {
+        border-color: var(--accent);
+      }
+      .form-group select option {
+        background: var(--surface2);
+      }
+      .form-group textarea {
+        resize: vertical;
+        min-height: 72px;
+      }
+      .platform-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--border);
+      }
+      .platform-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+      }
+      .platform-icon.fb {
+        background: rgba(24, 119, 242, 0.15);
+        color: var(--fb);
+      }
+      .platform-icon.tw {
+        background: rgba(29, 161, 242, 0.15);
+        color: var(--tw);
+      }
+      .platform-icon.ig {
+        background: rgba(225, 48, 108, 0.15);
+        color: var(--ig);
+      }
+      .platform-label {
+        font-family: var(--cond);
+        font-weight: 700;
+        font-size: 16px;
+        letter-spacing: 0.5px;
+      }
+      .modal-footer {
+        padding: 14px 22px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        justify-content: flex-end;
+        background: var(--surface2);
+        border-radius: 0 0 12px 12px;
+      }
 
-  .confirm-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.8);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 1100; opacity: 0; pointer-events: none; transition: opacity 0.2s;
-  }
-  .confirm-overlay.open { opacity: 1; pointer-events: all; }
-  .confirm-box {
-    background: var(--surface); border: 1px solid var(--border2); border-radius: 10px;
-    padding: 28px 30px; width: min(400px, 92vw); text-align: center;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-  }
-  .confirm-icon { font-size: 32px; margin-bottom: 12px; }
-  .confirm-title { font-family: var(--cond); font-size: 20px; font-weight: 700; margin-bottom: 8px; }
-  .confirm-msg { color: var(--text2); font-size: 13px; margin-bottom: 22px; line-height: 1.5; }
-  .confirm-actions { display: flex; gap: 10px; justify-content: center; }
+      .confirm-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1100;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s;
+      }
+      .confirm-overlay.open {
+        opacity: 1;
+        pointer-events: all;
+      }
+      .confirm-box {
+        background: var(--surface);
+        border: 1px solid var(--border2);
+        border-radius: 10px;
+        padding: 28px 30px;
+        width: min(400px, 92vw);
+        text-align: center;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+      }
+      .confirm-icon {
+        font-size: 32px;
+        margin-bottom: 12px;
+      }
+      .confirm-title {
+        font-family: var(--cond);
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+      .confirm-msg {
+        color: var(--text2);
+        font-size: 13px;
+        margin-bottom: 22px;
+        line-height: 1.5;
+      }
+      .confirm-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
 
-  #toast-container {
-    position: fixed; bottom: 20px; right: 20px; z-index: 2000;
-    display: flex; flex-direction: column; gap: 8px;
-  }
-  .toast {
-    background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px;
-    padding: 10px 16px; min-width: 200px; max-width: 320px;
-    display: flex; align-items: center; gap: 10px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.4); animation: slideUp 0.25s ease;
-  }
-  .toast.success { border-left: 3px solid var(--success); }
-  .toast.error   { border-left: 3px solid var(--danger); }
-  .toast.info    { border-left: 3px solid var(--accent2); }
-  .toast-icon { font-size: 15px; }
-  .toast-msg  { font-size: 12px; color: var(--text); flex: 1; }
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateY(12px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
+      #toast-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 2000;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .toast {
+        background: var(--surface2);
+        border: 1px solid var(--border2);
+        border-radius: 8px;
+        padding: 10px 16px;
+        min-width: 200px;
+        max-width: 320px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        animation: slideUp 0.25s ease;
+      }
+      .toast.success {
+        border-left: 3px solid var(--success);
+      }
+      .toast.error {
+        border-left: 3px solid var(--danger);
+      }
+      .toast.info {
+        border-left: 3px solid var(--accent2);
+      }
+      .toast-icon {
+        font-size: 15px;
+      }
+      .toast-msg {
+        font-size: 12px;
+        color: var(--text);
+        flex: 1;
+      }
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
 
-  ::-webkit-scrollbar { width: 5px; height: 5px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
-</style>
-</head>
-<body>
-
-<header class="app-header">
-  <div class="logo">Intel<span> / Social Profiles</span></div>
-  <div class="header-divider"></div>
-  <div class="stat-pill">Total <span class="num" id="hdr-total">—</span></div>
-  <div class="stat-pill">🟢 Active <span class="num" id="hdr-active">—</span></div>
-  <div class="stat-pill">✓ Verified <span class="num-verified" id="hdr-verified">—</span></div>
-  <div class="header-actions">
-    <a href="/analytics" class="btn btn-ghost btn-sm">📊 Analytics</a>
-    <button class="btn btn-ghost btn-sm" id="btn-export">⬇ Export CSV</button>
-    <button class="btn btn-primary btn-sm" id="btn-add">＋ Add Profile</button>
-  </div>
-</header>
-
-<div class="app-body">
-  <aside class="sidebar">
-    <div class="sidebar-section">
-      <div class="sidebar-label">Search</div>
-      <div class="filter-group">
-        <input type="text" id="f-search" placeholder="Name, ID, email…" autocomplete="off">
+      ::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border2);
+        border-radius: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="logo">Intel<span> / Social Profiles</span></div>
+      <div class="header-divider"></div>
+      <div class="stat-pill">
+        Total <span class="num" id="hdr-total">—</span>
       </div>
-    </div>
-
-    <div class="sidebar-section">
-      <div class="sidebar-label">Filters</div>
-      <div class="filter-group">
-        <label>Zone</label>
-        <select id="f-zone"><option value="">All Zones</option></select>
+      <div class="stat-pill">
+        🟢 Active <span class="num" id="hdr-active">—</span>
       </div>
-      <div class="filter-group">
-        <label>Party District</label>
-        <select id="f-party"><option value="">All Districts</option></select>
+      <div class="stat-pill">
+        ✓ Verified <span class="num-verified" id="hdr-verified">—</span>
       </div>
-      <div class="filter-group">
-        <label>Constituency</label>
-        <select id="f-const"><option value="">All Constituencies</option></select>
-      </div>
-      <div class="filter-group">
-        <label>Designation</label>
-        <select id="f-desig"><option value="">All Designations</option></select>
-      </div>
-    </div>
-
-    <div class="sidebar-section">
-      <div class="sidebar-label">Quick Filters</div>
-      <div class="toggle-row" onclick="toggleFilter('active')">
-        <span>Active accounts only</span>
-        <div class="toggle" id="tog-active"></div>
-      </div>
-      <div class="toggle-row" onclick="toggleFilter('verified')">
-        <span>Verified only</span>
-        <div class="toggle" id="tog-verified"></div>
-      </div>
-      <button class="btn-reset-filters" onclick="resetFilters()">↺ Reset all filters</button>
-    </div>
-
-    <div class="sidebar-section">
-      <div class="sidebar-label">Platform Stats</div>
-    </div>
-    <div class="platform-stats">
-      <div class="platform-row">
-        <div class="platform-dot" style="background:var(--fb)"></div>
-        <span class="platform-name">Facebook</span>
-        <div>
-          <div class="platform-num" id="ps-fb-followers">—</div>
-          <div class="platform-sub" id="ps-fb-active">—</div>
-        </div>
-      </div>
-      <div class="platform-row">
-        <div class="platform-dot" style="background:var(--tw)"></div>
-        <span class="platform-name">Twitter/X</span>
-        <div>
-          <div class="platform-num" id="ps-tw-followers">—</div>
-          <div class="platform-sub" id="ps-tw-active">—</div>
-        </div>
-      </div>
-      <div class="platform-row">
-        <div class="platform-dot" style="background:var(--ig)"></div>
-        <span class="platform-name">Instagram</span>
-        <div>
-          <div class="platform-num" id="ps-ig-followers">—</div>
-          <div class="platform-sub" id="ps-ig-active">—</div>
-        </div>
-      </div>
-    </div>
-  </aside>
-
-  <div class="main-content">
-    <div class="grid-toolbar">
-      <div class="toolbar-left">
-        <span class="result-count" id="result-count">Loading…</span>
-        <button class="btn btn-ghost btn-sm" id="btn-col-toggle" onclick="toggleColumnGroup()">⊟ Hide Contact</button>
-        <button class="btn btn-danger btn-sm" id="btn-bulk-del" style="display:none" onclick="openBulkDelete()">
-          🗑 Delete Selected (<span id="sel-count">0</span>)
+      <div class="header-actions">
+        <a href="/analytics" class="btn btn-ghost btn-sm">📊 Analytics</a>
+        <button class="btn btn-ghost btn-sm" id="btn-export">
+          ⬇ Export CSV
+        </button>
+        <button class="btn btn-primary btn-sm" id="btn-add">
+          ＋ Add Profile
         </button>
       </div>
+    </header>
 
-      <div class="pagination-controls">
-        <label style="font-size:11px;color:var(--text3);font-family:var(--mono);">Rows:</label>
-        <select class="page-size-select" id="page-size-sel" onchange="changePageSize(this.value)">
-          <option value="50">50</option>
-          <option value="100" selected>100</option>
-          <option value="200">200</option>
-        </select>
-        <button class="page-btn" id="btn-first" onclick="goFirst()" title="First page">«</button>
-        <button class="page-btn" id="btn-prev"  onclick="goPrev()"  title="Previous page">‹</button>
-        <span class="page-info" id="current-page-info">Page <strong>1</strong></span>
-        <button class="page-btn" id="btn-next"  onclick="goNext()"  title="Next page">›</button>
-      </div>
-    </div>
-
-    <div class="grid-loading-bar" id="loading-bar"></div>
-    <div class="grid-wrap">
-      <div id="myGrid" class="ag-theme-social" style="height:100%;width:100%"></div>
-    </div>
-  </div>
-</div>
-
-<!-- EDIT MODAL -->
-<div class="modal-overlay" id="edit-overlay">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="modal-title">Add Profile</div>
-      <button class="modal-close" onclick="closeModal()">✕</button>
-    </div>
-    <div class="modal-tabs">
-      <button class="modal-tab active" onclick="switchTab(0)">Basic Info</button>
-      <button class="modal-tab" onclick="switchTab(1)">📘 Facebook</button>
-      <button class="modal-tab" onclick="switchTab(2)">🐦 Twitter</button>
-      <button class="modal-tab" onclick="switchTab(3)">📸 Instagram</button>
-    </div>
-    <div class="modal-body">
-      <div class="tab-panel active" id="tab-0">
-        <div class="form-grid">
-          <div class="form-group span2">
-            <label>Full Name *</label>
-            <input type="text" id="f-name" placeholder="Enter full name">
+    <div class="app-body">
+      <aside class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-label">Search</div>
+          <div class="filter-group">
+            <input
+              type="text"
+              id="f-search"
+              placeholder="Name, ID, email…"
+              autocomplete="off"
+            />
           </div>
-          <div class="form-group">
-            <label>Designation</label>
-            <input type="text" id="f-designation" placeholder="e.g. MLA, MP, President">
-          </div>
-          <div class="form-group">
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-label">Filters</div>
+          <div class="filter-group">
             <label>Zone</label>
-            <input type="text" id="f-zone-inp" placeholder="Zone">
+            <select id="f-zone">
+              <option value="">All Zones</option>
+            </select>
           </div>
-          <div class="form-group">
+          <div class="filter-group">
             <label>Party District</label>
-            <input type="text" id="f-party-inp" placeholder="Party district">
+            <select id="f-party">
+              <option value="">All Districts</option>
+            </select>
           </div>
-          <div class="form-group">
+          <div class="filter-group">
             <label>Constituency</label>
-            <input type="text" id="f-const-inp" placeholder="Constituency">
+            <select id="f-const">
+              <option value="">All Constituencies</option>
+            </select>
           </div>
-          <div class="form-group">
-            <label>WhatsApp Number</label>
-            <input type="text" id="f-whatsapp" placeholder="+91…">
-          </div>
-          <div class="form-group">
-            <label>Date of Birth</label>
-            <input type="date" id="f-dob">
-          </div>
-          <div class="form-group span2">
-            <label>Email ID</label>
-            <input type="email" id="f-email" placeholder="email@example.com">
-          </div>
-          <div class="form-group span2">
-            <label>Address</label>
-            <textarea id="f-address" placeholder="Full address…"></textarea>
+          <div class="filter-group">
+            <label>Designation</label>
+            <select id="f-desig">
+              <option value="">All Designations</option>
+            </select>
           </div>
         </div>
-      </div>
 
-      <div class="tab-panel" id="tab-1">
-        <div class="platform-header">
-          <div class="platform-icon fb">f</div>
-          <span class="platform-label" style="color:var(--fb)">Facebook</span>
+        <div class="sidebar-section">
+          <div class="sidebar-label">Quick Filters</div>
+          <div class="toggle-row" onclick="toggleFilter('active')">
+            <span>Active accounts only</span>
+            <div class="toggle" id="tog-active"></div>
+          </div>
+          <div class="toggle-row" onclick="toggleFilter('verified')">
+            <span>Verified only</span>
+            <div class="toggle" id="tog-verified"></div>
+          </div>
+          <button class="btn-reset-filters" onclick="resetFilters()">
+            ↺ Reset all filters
+          </button>
         </div>
-        <div class="form-grid">
-          <div class="form-group span2">
-            <label>Facebook ID / URL</label>
-            <input type="text" id="f-fb-id" placeholder="facebook.com/username">
-          </div>
-          <div class="form-group">
-            <label>Followers</label>
-            <input type="number" id="f-fb-followers" placeholder="0" min="0">
-          </div>
-          <div class="form-group">
-            <label>Active Status</label>
-            <select id="f-fb-active">
-              <option value="">Unknown</option>
-              <option value="true">Active</option>
-              <option value="false">Inactive</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Verified Status</label>
-            <select id="f-fb-verified">
-              <option value="">Unknown</option>
-              <option value="true">Verified</option>
-              <option value="false">Not Verified</option>
-            </select>
-          </div>
-        </div>
-      </div>
 
-      <div class="tab-panel" id="tab-2">
-        <div class="platform-header">
-          <div class="platform-icon tw">𝕏</div>
-          <span class="platform-label" style="color:var(--tw)">Twitter / X</span>
+        <div class="sidebar-section">
+          <div class="sidebar-label">Platform Stats</div>
         </div>
-        <div class="form-grid">
-          <div class="form-group span2">
-            <label>Twitter Handle / ID</label>
-            <input type="text" id="f-tw-id" placeholder="@username">
+        <div class="platform-stats">
+          <div class="platform-row">
+            <div class="platform-dot" style="background: var(--fb)"></div>
+            <span class="platform-name">Facebook</span>
+            <div>
+              <div class="platform-num" id="ps-fb-followers">—</div>
+              <div class="platform-sub" id="ps-fb-active">—</div>
+            </div>
           </div>
-          <div class="form-group">
-            <label>Followers</label>
-            <input type="number" id="f-tw-followers" placeholder="0" min="0">
+          <div class="platform-row">
+            <div class="platform-dot" style="background: var(--tw)"></div>
+            <span class="platform-name">Twitter/X</span>
+            <div>
+              <div class="platform-num" id="ps-tw-followers">—</div>
+              <div class="platform-sub" id="ps-tw-active">—</div>
+            </div>
           </div>
-          <div class="form-group">
-            <label>Active Status</label>
-            <select id="f-tw-active">
-              <option value="">Unknown</option>
-              <option value="true">Active</option>
-              <option value="false">Inactive</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Verified Status</label>
-            <select id="f-tw-verified">
-              <option value="">Unknown</option>
-              <option value="true">Verified</option>
-              <option value="false">Not Verified</option>
-            </select>
+          <div class="platform-row">
+            <div class="platform-dot" style="background: var(--ig)"></div>
+            <span class="platform-name">Instagram</span>
+            <div>
+              <div class="platform-num" id="ps-ig-followers">—</div>
+              <div class="platform-sub" id="ps-ig-active">—</div>
+            </div>
           </div>
         </div>
-      </div>
+      </aside>
 
-      <div class="tab-panel" id="tab-3">
-        <div class="platform-header">
-          <div class="platform-icon ig">◉</div>
-          <span class="platform-label" style="color:var(--ig)">Instagram</span>
+      <div class="main-content">
+        <div class="grid-toolbar">
+          <div class="toolbar-left">
+            <span class="result-count" id="result-count">Loading…</span>
+            <button
+              class="btn btn-ghost btn-sm"
+              id="btn-col-toggle"
+              onclick="toggleColumnGroup()"
+            >
+              ⊟ Hide Contact
+            </button>
+            <button
+              class="btn btn-danger btn-sm"
+              id="btn-bulk-del"
+              style="display: none"
+              onclick="openBulkDelete()"
+            >
+              🗑 Delete Selected (<span id="sel-count">0</span>)
+            </button>
+          </div>
+
+          <div class="pagination-controls">
+            <label
+              style="
+                font-size: 11px;
+                color: var(--text3);
+                font-family: var(--mono);
+              "
+              >Rows:</label
+            >
+            <select
+              class="page-size-select"
+              id="page-size-sel"
+              onchange="changePageSize(this.value)"
+            >
+              <option value="50">50</option>
+              <option value="100" selected>100</option>
+              <option value="200">200</option>
+            </select>
+            <button
+              class="page-btn"
+              id="btn-first"
+              onclick="goFirst()"
+              title="First page"
+            >
+              «
+            </button>
+            <button
+              class="page-btn"
+              id="btn-prev"
+              onclick="goPrev()"
+              title="Previous page"
+            >
+              ‹
+            </button>
+            <span class="page-info" id="current-page-info"
+              >Page <strong>1</strong></span
+            >
+            <button
+              class="page-btn"
+              id="btn-next"
+              onclick="goNext()"
+              title="Next page"
+            >
+              ›
+            </button>
+          </div>
         </div>
-        <div class="form-grid">
-          <div class="form-group span2">
-            <label>Instagram ID / Handle</label>
-            <input type="text" id="f-ig-id" placeholder="@handle">
-          </div>
-          <div class="form-group">
-            <label>Followers</label>
-            <input type="number" id="f-ig-followers" placeholder="0" min="0">
-          </div>
-          <div class="form-group">
-            <label>Active Status</label>
-            <select id="f-ig-active">
-              <option value="">Unknown</option>
-              <option value="true">Active</option>
-              <option value="false">Inactive</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Verified Status</label>
-            <select id="f-ig-verified">
-              <option value="">Unknown</option>
-              <option value="true">Verified</option>
-              <option value="false">Not Verified</option>
-            </select>
-          </div>
+
+        <div class="grid-loading-bar" id="loading-bar"></div>
+        <div class="grid-wrap">
+          <div
+            id="myGrid"
+            class="ag-theme-social"
+            style="height: 100%; width: 100%"
+          ></div>
         </div>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" id="btn-save" onclick="saveProfile()">Save Profile</button>
+
+    <!-- EDIT MODAL -->
+    <div class="modal-overlay" id="edit-overlay">
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-title" id="modal-title">Add Profile</div>
+          <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal-tabs">
+          <button class="modal-tab active" onclick="switchTab(0)">
+            Basic Info
+          </button>
+          <button class="modal-tab" onclick="switchTab(1)">📘 Facebook</button>
+          <button class="modal-tab" onclick="switchTab(2)">🐦 Twitter</button>
+          <button class="modal-tab" onclick="switchTab(3)">📸 Instagram</button>
+        </div>
+        <div class="modal-body">
+          <div class="tab-panel active" id="tab-0">
+            <div class="form-grid">
+              <div class="form-group span2">
+                <label>Full Name *</label>
+                <input type="text" id="f-name" placeholder="Enter full name" />
+              </div>
+              <div class="form-group">
+                <label>Designation</label>
+                <input
+                  type="text"
+                  id="f-designation"
+                  placeholder="e.g. MLA, MP, President"
+                />
+              </div>
+              <div class="form-group">
+                <label>Zone</label>
+                <input type="text" id="f-zone-inp" placeholder="Zone" />
+              </div>
+              <div class="form-group">
+                <label>Party District</label>
+                <input
+                  type="text"
+                  id="f-party-inp"
+                  placeholder="Party district"
+                />
+              </div>
+              <div class="form-group">
+                <label>Constituency</label>
+                <input
+                  type="text"
+                  id="f-const-inp"
+                  placeholder="Constituency"
+                />
+              </div>
+              <div class="form-group">
+                <label>WhatsApp Number</label>
+                <input type="text" id="f-whatsapp" placeholder="+91…" />
+              </div>
+              <div class="form-group">
+                <label>Date of Birth</label>
+                <input type="date" id="f-dob" />
+              </div>
+              <div class="form-group span2">
+                <label>Email ID</label>
+                <input
+                  type="email"
+                  id="f-email"
+                  placeholder="email@example.com"
+                />
+              </div>
+              <div class="form-group span2">
+                <label>Address</label>
+                <textarea id="f-address" placeholder="Full address…"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="tab-1">
+            <div class="platform-header">
+              <div class="platform-icon fb">f</div>
+              <span class="platform-label" style="color: var(--fb)"
+                >Facebook</span
+              >
+            </div>
+            <div class="form-grid">
+              <div class="form-group span2">
+                <label>Facebook ID / URL</label>
+                <input
+                  type="text"
+                  id="f-fb-id"
+                  placeholder="facebook.com/username"
+                />
+              </div>
+              <div class="form-group">
+                <label>Followers</label>
+                <input
+                  type="number"
+                  id="f-fb-followers"
+                  placeholder="0"
+                  min="0"
+                />
+              </div>
+              <div class="form-group">
+                <label>Active Status</label>
+                <select id="f-fb-active">
+                  <option value="">Unknown</option>
+                  <option value="true">Active</option>
+                  <option value="false">Inactive</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Verified Status</label>
+                <select id="f-fb-verified">
+                  <option value="">Unknown</option>
+                  <option value="true">Verified</option>
+                  <option value="false">Not Verified</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="tab-2">
+            <div class="platform-header">
+              <div class="platform-icon tw">𝕏</div>
+              <span class="platform-label" style="color: var(--tw)"
+                >Twitter / X</span
+              >
+            </div>
+            <div class="form-grid">
+              <div class="form-group span2">
+                <label>Twitter Handle / ID</label>
+                <input type="text" id="f-tw-id" placeholder="@username" />
+              </div>
+              <div class="form-group">
+                <label>Followers</label>
+                <input
+                  type="number"
+                  id="f-tw-followers"
+                  placeholder="0"
+                  min="0"
+                />
+              </div>
+              <div class="form-group">
+                <label>Active Status</label>
+                <select id="f-tw-active">
+                  <option value="">Unknown</option>
+                  <option value="true">Active</option>
+                  <option value="false">Inactive</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Verified Status</label>
+                <select id="f-tw-verified">
+                  <option value="">Unknown</option>
+                  <option value="true">Verified</option>
+                  <option value="false">Not Verified</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="tab-3">
+            <div class="platform-header">
+              <div class="platform-icon ig">◉</div>
+              <span class="platform-label" style="color: var(--ig)"
+                >Instagram</span
+              >
+            </div>
+            <div class="form-grid">
+              <div class="form-group span2">
+                <label>Instagram ID / Handle</label>
+                <input type="text" id="f-ig-id" placeholder="@handle" />
+              </div>
+              <div class="form-group">
+                <label>Followers</label>
+                <input
+                  type="number"
+                  id="f-ig-followers"
+                  placeholder="0"
+                  min="0"
+                />
+              </div>
+              <div class="form-group">
+                <label>Active Status</label>
+                <select id="f-ig-active">
+                  <option value="">Unknown</option>
+                  <option value="true">Active</option>
+                  <option value="false">Inactive</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Verified Status</label>
+                <select id="f-ig-verified">
+                  <option value="">Unknown</option>
+                  <option value="true">Verified</option>
+                  <option value="false">Not Verified</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+          <button class="btn btn-primary" id="btn-save" onclick="saveProfile()">
+            Save Profile
+          </button>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
-<!-- CONFIRM -->
-<div class="confirm-overlay" id="confirm-overlay">
-  <div class="confirm-box">
-    <div class="confirm-icon">⚠️</div>
-    <div class="confirm-title" id="confirm-title">Confirm Delete</div>
-    <div class="confirm-msg" id="confirm-msg">This action cannot be undone.</div>
-    <div class="confirm-actions">
-      <button class="btn btn-ghost" onclick="closeConfirm()">Cancel</button>
-      <button class="btn btn-danger" id="confirm-ok">Delete</button>
+    <!-- CONFIRM -->
+    <div class="confirm-overlay" id="confirm-overlay">
+      <div class="confirm-box">
+        <div class="confirm-icon">⚠️</div>
+        <div class="confirm-title" id="confirm-title">Confirm Delete</div>
+        <div class="confirm-msg" id="confirm-msg">
+          This action cannot be undone.
+        </div>
+        <div class="confirm-actions">
+          <button class="btn btn-ghost" onclick="closeConfirm()">Cancel</button>
+          <button class="btn btn-danger" id="confirm-ok">Delete</button>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
-<div id="toast-container"></div>
+    <div id="toast-container"></div>
 
-<script>
-'use strict';
+    <script>
+      "use strict";
 
-// ── STATE ─────────────────────────────────────────────────────────────────────
-const state = {
-  editingId:     null,
-  activeFilters: { active: false, verified: false },
-  pageSize:      100,
-  totalRows:     0,
-  sortBy:        'id',
-  sortOrder:     'asc',
-  isLoading:     false,
-  cursorStack:   [null],
-  pageIndex:     0,
-};
+      // ── STATE ─────────────────────────────────────────────────────────────────────
+      const state = {
+        editingId: null,
+        activeFilters: { active: false, verified: false },
+        pageSize: 100,
+        totalRows: 0,
+        sortBy: "id",
+        sortOrder: "asc",
+        isLoading: false,
+        cursorStack: [null],
+        pageIndex: 0,
+      };
 
-// ── HELPERS ───────────────────────────────────────────────────────────────────
-function fmtNum(n) {
-  if (n == null || n === '') return '—';
-  n = Number(n);
-  if (isNaN(n)) return '—';
-  if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
-  if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
-  return n.toLocaleString();
-}
-
-function esc(s) {
-  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-function boolBadge(val, trueLabel, trueClass, falseLabel, falseClass) {
-  if (val === true)  return `<span class="badge ${trueClass}">${trueLabel}</span>`;
-  if (val === false) return `<span class="badge ${falseClass}">${falseLabel}</span>`;
-  return `<span class="badge badge-unknown">—</span>`;
-}
-
-function parseBoolField(val) {
-  if (val === 'true')  return true;
-  if (val === 'false') return false;
-  return null;
-}
-
-function boolToSelectVal(val) {
-  if (val === true)  return 'true';
-  if (val === false) return 'false';
-  return '';
-}
-
-// ── BUILD PARAMS ──────────────────────────────────────────────────────────────
-function buildFilterParams() {
-  const p = new URLSearchParams();
-  const s = document.getElementById('f-search').value.trim();
-  if (s)  p.set('search', s);
-  const z = document.getElementById('f-zone').value;
-  if (z)  p.set('zone', z);
-  const pd = document.getElementById('f-party').value;
-  if (pd) p.set('party_district', pd);
-  const c = document.getElementById('f-const').value;
-  if (c)  p.set('constituency', c);
-  const d = document.getElementById('f-desig').value;
-  if (d)  p.set('designation', d);
-  if (state.activeFilters.active)   p.set('active_only', 'true');
-  if (state.activeFilters.verified) p.set('verified_only', 'true');
-  return p;
-}
-
-function buildParams(extra = {}) {
-  const p = buildFilterParams();
-  p.set('sort_by', state.sortBy);
-  p.set('sort_order', state.sortOrder);
-  p.set('limit', state.pageSize);
-  Object.entries(extra).forEach(([k, v]) => p.set(k, v));
-  return p.toString();
-}
-
-// ── LOADING / TOAST ───────────────────────────────────────────────────────────
-function setLoading(on) {
-  state.isLoading = on;
-  document.getElementById('loading-bar').classList.toggle('loading', on);
-}
-
-function showToast(msg, type = 'info') {
-  const icons = { success: '✓', error: '✕', info: 'ℹ' };
-  const el = document.createElement('div');
-  el.className = `toast ${type}`;
-  el.innerHTML = `<span class="toast-icon">${icons[type] || 'ℹ'}</span>
-                  <span class="toast-msg">${msg}</span>`;
-  document.getElementById('toast-container').appendChild(el);
-  setTimeout(() => el.remove(), 3500);
-}
-
-// ── STATS ─────────────────────────────────────────────────────────────────────
-// AbortController cancels any in-flight stats request before issuing a new one,
-// preventing a stale (cached/fast) response from overwriting a fresh filtered one.
-let _statsController = null;
-
-async function loadStats() {
-  if (_statsController) _statsController.abort();
-  _statsController = new AbortController();
-  const { signal } = _statsController;
-
-  try {
-    const qs  = buildFilterParams().toString();
-    const url = qs ? `/api/stats?${qs}` : '/api/stats';
-    const res  = await fetch(url, { signal, cache: 'no-store' });
-    const data = await res.json();
-
-    // Header pills
-    document.getElementById('hdr-total').textContent    = (data.total ?? 0).toLocaleString();
-    const active   = (data.facebook.active   || 0) + (data.twitter.active   || 0) + (data.instagram.active   || 0);
-    const verified = (data.facebook.verified || 0) + (data.twitter.verified || 0) + (data.instagram.verified || 0);
-    document.getElementById('hdr-active').textContent   = active.toLocaleString();
-    document.getElementById('hdr-verified').textContent = verified.toLocaleString();
-
-    // Sidebar Platform Stats — followers + active count per platform
-    document.getElementById('ps-fb-followers').textContent = fmtNum(data.facebook.followers);
-    document.getElementById('ps-fb-active').textContent    = `${(data.facebook.active   || 0).toLocaleString()} active`;
-    document.getElementById('ps-tw-followers').textContent = fmtNum(data.twitter.followers);
-    document.getElementById('ps-tw-active').textContent    = `${(data.twitter.active    || 0).toLocaleString()} active`;
-    document.getElementById('ps-ig-followers').textContent = fmtNum(data.instagram.followers);
-    document.getElementById('ps-ig-active').textContent    = `${(data.instagram.active  || 0).toLocaleString()} active`;
-  } catch (e) {
-    if (e.name === 'AbortError') return; // intentionally cancelled — ignore
-    console.error('Stats error:', e);
-  }
-}
-
-// ── FILTER OPTIONS ────────────────────────────────────────────────────────────
-async function loadFilterOptions() {
-  try {
-    const data = await fetch('/api/filter-options').then(r => r.json());
-    const fill = (id, items) => {
-      const sel = document.getElementById(id);
-      items.forEach(v => {
-        const o = document.createElement('option');
-        o.value = v; o.textContent = v;
-        sel.appendChild(o);
-      });
-    };
-    fill('f-zone',  data.zones);
-    fill('f-party', data.party_districts);
-    fill('f-const', data.constituencies);
-    fill('f-desig', data.designations);
-  } catch (e) {
-    console.error('Filter options error:', e);
-  }
-}
-
-// ── AG GRID ───────────────────────────────────────────────────────────────────
-let gridApi;
-
-const colDefs = [
-  { headerCheckboxSelection: true, checkboxSelection: true, width: 40, pinned: 'left', resizable: false, sortable: false },
-  { field: 'id',          headerName: 'ID',          width: 70,  pinned: 'left', sortable: true },
-  { field: 'name',        headerName: 'Name',        width: 200, pinned: 'left', sortable: true,
-    cellRenderer: p => p.value ? `<span style="color:var(--text);font-family:var(--sans);font-weight:500;">${esc(p.value)}</span>` : '—'
-  },
-  { field: 'designation', headerName: 'Designation', width: 150, sortable: true },
-  { field: 'zone',        headerName: 'Zone',        width: 130, sortable: true },
-  { field: 'party_district', headerName: 'District', width: 140, sortable: true },
-  { field: 'constituency',   headerName: 'Constituency', width: 150, sortable: true },
-  { field: 'whatsapp_number', headerName: 'WhatsApp', width: 130, columnGroupShow: 'open' },
-  { field: 'email_id',        headerName: 'Email',    width: 180, columnGroupShow: 'open' },
-  { field: 'facebook_id',        headerName: 'FB ID',       width: 160 },
-  { field: 'facebook_followers', headerName: 'FB Followers', width: 110, sortable: true,
-    cellRenderer: p => `<span class="num-cell ${(p.value||0) > 100000 ? 'num-hi' : ''}">${fmtNum(p.value)}</span>`
-  },
-  { field: 'facebook_active_status', headerName: 'FB Active', width: 100,
-    cellRenderer: p => boolBadge(p.value, 'Active', 'badge-active', 'Inactive', 'badge-inactive')
-  },
-  { field: 'facebook_verified_status', headerName: 'FB Verified', width: 105,
-    cellRenderer: p => boolBadge(p.value, 'Verified', 'badge-verified', 'Not Verified', 'badge-unverified')
-  },
-  { field: 'twitter_id',        headerName: 'TW ID',       width: 140 },
-  { field: 'twitter_followers', headerName: 'TW Followers', width: 110, sortable: true,
-    cellRenderer: p => `<span class="num-cell ${(p.value||0) > 100000 ? 'num-hi' : ''}">${fmtNum(p.value)}</span>`
-  },
-  { field: 'twitter_active_status', headerName: 'TW Active', width: 100,
-    cellRenderer: p => boolBadge(p.value, 'Active', 'badge-active', 'Inactive', 'badge-inactive')
-  },
-  { field: 'twitter_verified_status', headerName: 'TW Verified', width: 105,
-    cellRenderer: p => boolBadge(p.value, 'Verified', 'badge-verified', 'Not Verified', 'badge-unverified')
-  },
-  { field: 'instagram_id',        headerName: 'IG ID',       width: 140 },
-  { field: 'instagram_followers', headerName: 'IG Followers', width: 110, sortable: true,
-    cellRenderer: p => `<span class="num-cell ${(p.value||0) > 100000 ? 'num-hi' : ''}">${fmtNum(p.value)}</span>`
-  },
-  { field: 'instagram_active_status', headerName: 'IG Active', width: 100,
-    cellRenderer: p => boolBadge(p.value, 'Active', 'badge-active', 'Inactive', 'badge-inactive')
-  },
-  { field: 'instagram_verified_status', headerName: 'IG Verified', width: 105,
-    cellRenderer: p => boolBadge(p.value, 'Verified', 'badge-verified', 'Not Verified', 'badge-unverified')
-  },
-  { headerName: 'Actions', width: 110, pinned: 'right', sortable: false, resizable: false,
-    cellRenderer: p => `
-      <div class="action-cell">
-        <button class="act-btn act-edit" onclick="openEdit(${p.data.id})">Edit</button>
-        <button class="act-btn act-del"  onclick="confirmDelete(${p.data.id}, '${esc(p.data.name || '')}')">Del</button>
-      </div>`
-  },
-];
-
-function initGrid() {
-  gridApi = agGrid.createGrid(document.getElementById('myGrid'), {
-    columnDefs: colDefs,
-    rowData: [],
-    rowSelection: 'multiple',
-    suppressRowClickSelection: true,
-    suppressMovableColumns: false,
-    defaultColDef: { resizable: true, sortable: false, suppressMenu: true },
-    onSelectionChanged: () => {
-      const n = gridApi.getSelectedRows().length;
-      document.getElementById('btn-bulk-del').style.display = n > 0 ? '' : 'none';
-      document.getElementById('sel-count').textContent = n;
-    },
-    onSortChanged: e => {
-      const col = e.api.getColumnState().find(c => c.sort);
-      if (col) {
-        state.sortBy    = col.colId;
-        state.sortOrder = col.sort;
-      } else {
-        state.sortBy    = 'id';
-        state.sortOrder = 'asc';
+      // ── HELPERS ───────────────────────────────────────────────────────────────────
+      function fmtNum(n) {
+        if (n == null || n === "") return "—";
+        n = Number(n);
+        if (isNaN(n)) return "—";
+        if (n >= 1e6) return (n / 1e6).toFixed(1) + "M";
+        if (n >= 1e3) return (n / 1e3).toFixed(1) + "K";
+        return n.toLocaleString();
       }
-      resetAndLoad();
-    },
-  });
-}
 
-// ── PAGINATION ────────────────────────────────────────────────────────────────
-function resetAndLoad() {
-  state.cursorStack = [null];
-  state.pageIndex   = 0;
-  // Grid and stats always refresh together so every number on screen is consistent.
-  loadPage();
-  loadStats();
-}
+      function esc(s) {
+        return String(s ?? "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
 
-async function loadPage() {
-  if (state.isLoading) return;
-  setLoading(true);
+      function boolBadge(val, trueLabel, trueClass, falseLabel, falseClass) {
+        if (val === true)
+          return `<span class="badge ${trueClass}">${trueLabel}</span>`;
+        if (val === false)
+          return `<span class="badge ${falseClass}">${falseLabel}</span>`;
+        return `<span class="badge badge-unknown">—</span>`;
+      }
 
-  const cursor = state.cursorStack[state.pageIndex];
-  const extra  = { limit: state.pageSize };
-  if (cursor) extra.cursor = cursor;
+      function parseBoolField(val) {
+        if (val === "true") return true;
+        if (val === "false") return false;
+        return null;
+      }
 
-  try {
-    const qs   = buildParams(extra);
-    const data = await fetch(`/api/profiles?${qs}`).then(r => r.json());
+      function boolToSelectVal(val) {
+        if (val === true) return "true";
+        if (val === false) return "false";
+        return "";
+      }
 
-    gridApi.setGridOption('rowData', data.rows);
-    state.totalRows = data.total;
+      // ── BUILD PARAMS ──────────────────────────────────────────────────────────────
+      function buildFilterParams() {
+        const p = new URLSearchParams();
+        const s = document.getElementById("f-search").value.trim();
+        if (s) p.set("search", s);
+        const z = document.getElementById("f-zone").value;
+        if (z) p.set("zone", z);
+        const pd = document.getElementById("f-party").value;
+        if (pd) p.set("party_district", pd);
+        const c = document.getElementById("f-const").value;
+        if (c) p.set("constituency", c);
+        const d = document.getElementById("f-desig").value;
+        if (d) p.set("designation", d);
+        if (state.activeFilters.active) p.set("active_only", "true");
+        if (state.activeFilters.verified) p.set("verified_only", "true");
+        return p;
+      }
 
-    if (data.next_cursor) {
-      state.cursorStack[state.pageIndex + 1] = data.next_cursor;
-    } else {
-      state.cursorStack = state.cursorStack.slice(0, state.pageIndex + 1);
-    }
+      function buildParams(extra = {}) {
+        const p = buildFilterParams();
+        p.set("sort_by", state.sortBy);
+        p.set("sort_order", state.sortOrder);
+        p.set("limit", state.pageSize);
+        Object.entries(extra).forEach(([k, v]) => p.set(k, v));
+        return p.toString();
+      }
 
-    updatePaginationUI(data.next_cursor);
-    updateResultCount(data.rows.length, data.total);
-  } catch (e) {
-    showToast('Failed to load profiles', 'error');
-    console.error(e);
-  } finally {
-    setLoading(false);
-  }
-}
+      // ── LOADING / TOAST ───────────────────────────────────────────────────────────
+      function setLoading(on) {
+        state.isLoading = on;
+        document.getElementById("loading-bar").classList.toggle("loading", on);
+      }
 
-function updatePaginationUI(hasNextCursor) {
-  const pageNum = state.pageIndex + 1;
-  document.getElementById('current-page-info').innerHTML =
-    `Page <strong>${pageNum}</strong> · <span style="color:var(--text3)">${state.totalRows.toLocaleString()} total</span>`;
-  document.getElementById('btn-first').disabled = state.pageIndex === 0;
-  document.getElementById('btn-prev').disabled  = state.pageIndex === 0;
-  document.getElementById('btn-next').disabled  = !hasNextCursor && !state.cursorStack[state.pageIndex + 1];
-}
+      function showToast(msg, type = "info") {
+        const icons = { success: "✓", error: "✕", info: "ℹ" };
+        const el = document.createElement("div");
+        el.className = `toast ${type}`;
+        el.innerHTML = `<span class="toast-icon">${icons[type] || "ℹ"}</span>
+                  <span class="toast-msg">${msg}</span>`;
+        document.getElementById("toast-container").appendChild(el);
+        setTimeout(() => el.remove(), 3500);
+      }
 
-function updateResultCount(shown, total) {
-  const start = state.pageIndex * state.pageSize + 1;
-  const end   = start + shown - 1;
-  document.getElementById('result-count').textContent =
-    `Showing ${start.toLocaleString()}–${end.toLocaleString()} of ${total.toLocaleString()} rows`;
-}
+      // ── STATS ─────────────────────────────────────────────────────────────────────
+      // AbortController cancels any in-flight stats request before issuing a new one,
+      // preventing a stale (cached/fast) response from overwriting a fresh filtered one.
+      let _statsController = null;
 
-function goFirst() { state.pageIndex = 0; loadPage(); }
-function goPrev()  { if (state.pageIndex > 0) { state.pageIndex--; loadPage(); } }
-function goNext()  { if (state.cursorStack[state.pageIndex + 1] !== undefined) { state.pageIndex++; loadPage(); } }
-function changePageSize(val) { state.pageSize = parseInt(val); resetAndLoad(); }
+      async function loadStats() {
+        if (_statsController) _statsController.abort();
+        _statsController = new AbortController();
+        const { signal } = _statsController;
 
-// ── COLUMN TOGGLE ─────────────────────────────────────────────────────────────
-let contactHidden = false;
-function toggleColumnGroup() {
-  contactHidden = !contactHidden;
-  gridApi.setColumnsVisible(['whatsapp_number', 'email_id'], !contactHidden);
-  document.getElementById('btn-col-toggle').textContent =
-    contactHidden ? '⊞ Show Contact' : '⊟ Hide Contact';
-}
+        try {
+          const qs = buildFilterParams().toString();
+          const url = qs ? `/api/stats?${qs}` : "/api/stats";
+          const res = await fetch(url, { signal, cache: "no-store" });
+          const data = await res.json();
 
-// ── FILTERS ───────────────────────────────────────────────────────────────────
-let searchDebounce;
-function setupFilterListeners() {
-  document.getElementById('f-search').addEventListener('input', () => {
-    clearTimeout(searchDebounce);
-    searchDebounce = setTimeout(resetAndLoad, 350);
-  });
-  ['f-zone','f-party','f-const','f-desig'].forEach(id => {
-    document.getElementById(id).addEventListener('change', resetAndLoad);
-  });
-}
+          // Header pills
+          document.getElementById("hdr-total").textContent = (
+            data.total ?? 0
+          ).toLocaleString();
+          const active =
+            (data.facebook.active || 0) +
+            (data.twitter.active || 0) +
+            (data.instagram.active || 0);
+          const verified =
+            (data.facebook.verified || 0) +
+            (data.twitter.verified || 0) +
+            (data.instagram.verified || 0);
+          document.getElementById("hdr-active").textContent =
+            active.toLocaleString();
+          document.getElementById("hdr-verified").textContent =
+            verified.toLocaleString();
 
-function toggleFilter(key) {
-  state.activeFilters[key] = !state.activeFilters[key];
-  document.getElementById(`tog-${key}`).classList.toggle('on', state.activeFilters[key]);
-  resetAndLoad();
-}
+          // Sidebar Platform Stats — followers + active count per platform
+          document.getElementById("ps-fb-followers").textContent = fmtNum(
+            data.facebook.followers,
+          );
+          document.getElementById("ps-fb-active").textContent =
+            `${(data.facebook.active || 0).toLocaleString()} active`;
+          document.getElementById("ps-tw-followers").textContent = fmtNum(
+            data.twitter.followers,
+          );
+          document.getElementById("ps-tw-active").textContent =
+            `${(data.twitter.active || 0).toLocaleString()} active`;
+          document.getElementById("ps-ig-followers").textContent = fmtNum(
+            data.instagram.followers,
+          );
+          document.getElementById("ps-ig-active").textContent =
+            `${(data.instagram.active || 0).toLocaleString()} active`;
+        } catch (e) {
+          if (e.name === "AbortError") return; // intentionally cancelled — ignore
+          console.error("Stats error:", e);
+        }
+      }
 
-function resetFilters() {
-  document.getElementById('f-search').value = '';
-  document.getElementById('f-zone').value   = '';
-  document.getElementById('f-party').value  = '';
-  document.getElementById('f-const').value  = '';
-  document.getElementById('f-desig').value  = '';
-  state.activeFilters.active   = false;
-  state.activeFilters.verified = false;
-  document.getElementById('tog-active').classList.remove('on');
-  document.getElementById('tog-verified').classList.remove('on');
-  resetAndLoad();
-}
+      // ── FILTER OPTIONS ────────────────────────────────────────────────────────────
+      async function loadFilterOptions() {
+        try {
+          const data = await fetch("/api/filter-options").then((r) => r.json());
+          const fill = (id, items) => {
+            const sel = document.getElementById(id);
+            items.forEach((v) => {
+              const o = document.createElement("option");
+              o.value = v;
+              o.textContent = v;
+              sel.appendChild(o);
+            });
+          };
+          fill("f-zone", data.zones);
+          fill("f-party", data.party_districts);
+          fill("f-const", data.constituencies);
+          fill("f-desig", data.designations);
+        } catch (e) {
+          console.error("Filter options error:", e);
+        }
+      }
 
-// ── MODAL ─────────────────────────────────────────────────────────────────────
-function switchTab(n) {
-  document.querySelectorAll('.tab-panel').forEach((p, i) => p.classList.toggle('active', i === n));
-  document.querySelectorAll('.modal-tab').forEach((t, i) => t.classList.toggle('active', i === n));
-}
+      // ── AG GRID ───────────────────────────────────────────────────────────────────
+      let gridApi;
 
-function openAdd() {
-  state.editingId = null;
-  document.getElementById('modal-title').textContent = 'Add Profile';
-  clearForm();
-  switchTab(0);
-  document.getElementById('edit-overlay').classList.add('open');
-}
+      const colDefs = [
+        {
+          headerCheckboxSelection: true,
+          checkboxSelection: true,
+          width: 40,
+          pinned: "left",
+          resizable: false,
+          sortable: false,
+        },
+        {
+          field: "id",
+          headerName: "ID",
+          width: 70,
+          pinned: "left",
+          sortable: true,
+        },
+        {
+          field: "name",
+          headerName: "Name",
+          width: 200,
+          pinned: "left",
+          sortable: true,
+          cellRenderer: (p) =>
+            p.value
+              ? `<span style="color:var(--text);font-family:var(--sans);font-weight:500;">${esc(p.value)}</span>`
+              : "—",
+        },
+        {
+          field: "designation",
+          headerName: "Designation",
+          width: 150,
+          sortable: true,
+        },
+        { field: "zone", headerName: "Zone", width: 130, sortable: true },
+        {
+          field: "party_district",
+          headerName: "District",
+          width: 140,
+          sortable: true,
+        },
+        {
+          field: "constituency",
+          headerName: "Constituency",
+          width: 150,
+          sortable: true,
+        },
+        {
+          field: "whatsapp_number",
+          headerName: "WhatsApp",
+          width: 130,
+          columnGroupShow: "open",
+        },
+        {
+          field: "email_id",
+          headerName: "Email",
+          width: 180,
+          columnGroupShow: "open",
+        },
+        { field: "facebook_id", headerName: "FB ID", width: 160 },
+        {
+          field: "facebook_followers",
+          headerName: "FB Followers",
+          width: 110,
+          sortable: true,
+          cellRenderer: (p) =>
+            `<span class="num-cell ${(p.value || 0) > 100000 ? "num-hi" : ""}">${fmtNum(p.value)}</span>`,
+        },
+        {
+          field: "facebook_active_status",
+          headerName: "FB Active",
+          width: 100,
+          cellRenderer: (p) =>
+            boolBadge(
+              p.value,
+              "Active",
+              "badge-active",
+              "Inactive",
+              "badge-inactive",
+            ),
+        },
+        {
+          field: "facebook_verified_status",
+          headerName: "FB Verified",
+          width: 105,
+          cellRenderer: (p) =>
+            boolBadge(
+              p.value,
+              "Verified",
+              "badge-verified",
+              "Not Verified",
+              "badge-unverified",
+            ),
+        },
+        { field: "twitter_id", headerName: "TW ID", width: 140 },
+        {
+          field: "twitter_followers",
+          headerName: "TW Followers",
+          width: 110,
+          sortable: true,
+          cellRenderer: (p) =>
+            `<span class="num-cell ${(p.value || 0) > 100000 ? "num-hi" : ""}">${fmtNum(p.value)}</span>`,
+        },
+        {
+          field: "twitter_active_status",
+          headerName: "TW Active",
+          width: 100,
+          cellRenderer: (p) =>
+            boolBadge(
+              p.value,
+              "Active",
+              "badge-active",
+              "Inactive",
+              "badge-inactive",
+            ),
+        },
+        {
+          field: "twitter_verified_status",
+          headerName: "TW Verified",
+          width: 105,
+          cellRenderer: (p) =>
+            boolBadge(
+              p.value,
+              "Verified",
+              "badge-verified",
+              "Not Verified",
+              "badge-unverified",
+            ),
+        },
+        { field: "instagram_id", headerName: "IG ID", width: 140 },
+        {
+          field: "instagram_followers",
+          headerName: "IG Followers",
+          width: 110,
+          sortable: true,
+          cellRenderer: (p) =>
+            `<span class="num-cell ${(p.value || 0) > 100000 ? "num-hi" : ""}">${fmtNum(p.value)}</span>`,
+        },
+        {
+          field: "instagram_active_status",
+          headerName: "IG Active",
+          width: 100,
+          cellRenderer: (p) =>
+            boolBadge(
+              p.value,
+              "Active",
+              "badge-active",
+              "Inactive",
+              "badge-inactive",
+            ),
+        },
+        {
+          field: "instagram_verified_status",
+          headerName: "IG Verified",
+          width: 105,
+          cellRenderer: (p) =>
+            boolBadge(
+              p.value,
+              "Verified",
+              "badge-verified",
+              "Not Verified",
+              "badge-unverified",
+            ),
+        },
+        {
+          headerName: "Actions",
+          width: 110,
+          pinned: "right",
+          sortable: false,
+          resizable: false,
+          cellRenderer: (p) => `
+      <div class="action-cell">
+        <button class="act-btn act-edit" data-action="edit" data-id="${p.data.id}">Edit</button>
+        <button class="act-btn act-del"  data-action="delete" data-id="${p.data.id}" data-name="${esc(p.data.name || "")}">Del</button>
+      </div>`,
+        },
+      ];
 
-function openEdit(id) {
-  state.editingId = id;
-  document.getElementById('modal-title').textContent = 'Edit Profile';
-  fetch(`/api/profiles/${id}`)
-    .then(r => r.json())
-    .then(p => {
-      document.getElementById('f-name').value        = p.name         || '';
-      document.getElementById('f-designation').value = p.designation  || '';
-      document.getElementById('f-zone-inp').value    = p.zone         || '';
-      document.getElementById('f-party-inp').value   = p.party_district || '';
-      document.getElementById('f-const-inp').value   = p.constituency || '';
-      document.getElementById('f-whatsapp').value    = p.whatsapp_number || '';
-      document.getElementById('f-dob').value         = p.dob          || '';
-      document.getElementById('f-email').value       = p.email_id     || '';
-      document.getElementById('f-address').value     = p.address      || '';
-      document.getElementById('f-fb-id').value       = p.facebook_id  || '';
-      document.getElementById('f-fb-followers').value = p.facebook_followers ?? '';
-      document.getElementById('f-fb-active').value   = boolToSelectVal(p.facebook_active_status);
-      document.getElementById('f-fb-verified').value = boolToSelectVal(p.facebook_verified_status);
-      document.getElementById('f-tw-id').value       = p.twitter_id   || '';
-      document.getElementById('f-tw-followers').value = p.twitter_followers ?? '';
-      document.getElementById('f-tw-active').value   = boolToSelectVal(p.twitter_active_status);
-      document.getElementById('f-tw-verified').value = boolToSelectVal(p.twitter_verified_status);
-      document.getElementById('f-ig-id').value       = p.instagram_id || '';
-      document.getElementById('f-ig-followers').value = p.instagram_followers ?? '';
-      document.getElementById('f-ig-active').value   = boolToSelectVal(p.instagram_active_status);
-      document.getElementById('f-ig-verified').value = boolToSelectVal(p.instagram_verified_status);
-    })
-    .catch(() => showToast('Failed to load profile', 'error'));
-  switchTab(0);
-  document.getElementById('edit-overlay').classList.add('open');
-}
+      function initGrid() {
+        gridApi = agGrid.createGrid(document.getElementById("myGrid"), {
+          columnDefs: colDefs,
+          rowData: [],
+          rowSelection: "multiple",
+          suppressRowClickSelection: true,
+          suppressMovableColumns: false,
+          defaultColDef: {
+            resizable: true,
+            sortable: false,
+            suppressMenu: true,
+          },
+          onSelectionChanged: () => {
+            const n = gridApi.getSelectedRows().length;
+            document.getElementById("btn-bulk-del").style.display =
+              n > 0 ? "" : "none";
+            document.getElementById("sel-count").textContent = n;
+          },
+          onSortChanged: (e) => {
+            const col = e.api.getColumnState().find((c) => c.sort);
+            if (col) {
+              state.sortBy = col.colId;
+              state.sortOrder = col.sort;
+            } else {
+              state.sortBy = "id";
+              state.sortOrder = "asc";
+            }
+            resetAndLoad();
+          },
+        });
+      }
 
-function clearForm() {
-  ['f-name','f-designation','f-zone-inp','f-party-inp','f-const-inp',
-   'f-whatsapp','f-dob','f-email','f-address',
-   'f-fb-id','f-fb-followers','f-tw-id','f-tw-followers','f-ig-id','f-ig-followers']
-    .forEach(id => { document.getElementById(id).value = ''; });
-  ['f-fb-active','f-fb-verified','f-tw-active','f-tw-verified','f-ig-active','f-ig-verified']
-    .forEach(id => { document.getElementById(id).value = ''; });
-}
+      // ── PAGINATION ────────────────────────────────────────────────────────────────
+      function resetAndLoad() {
+        state.cursorStack = [null];
+        state.pageIndex = 0;
+        // Grid and stats always refresh together so every number on screen is consistent.
+        loadPage();
+        loadStats();
+      }
 
-function closeModal() {
-  document.getElementById('edit-overlay').classList.remove('open');
-}
+      async function loadPage() {
+        if (state.isLoading) return;
+        setLoading(true);
 
-async function saveProfile() {
-  const name = document.getElementById('f-name').value.trim();
-  if (!name) { showToast('Name is required', 'error'); return; }
+        const cursor = state.cursorStack[state.pageIndex];
+        const extra = { limit: state.pageSize };
+        if (cursor) extra.cursor = cursor;
 
-  const body = {
-    name,
-    designation:    document.getElementById('f-designation').value.trim() || null,
-    zone:           document.getElementById('f-zone-inp').value.trim()    || null,
-    party_district: document.getElementById('f-party-inp').value.trim()   || null,
-    constituency:   document.getElementById('f-const-inp').value.trim()   || null,
-    whatsapp_number: document.getElementById('f-whatsapp').value.trim()   || null,
-    dob:            document.getElementById('f-dob').value || null,
-    email_id:       document.getElementById('f-email').value.trim()       || null,
-    address:        document.getElementById('f-address').value.trim()     || null,
-    facebook_id:               document.getElementById('f-fb-id').value.trim()       || null,
-    facebook_followers:        document.getElementById('f-fb-followers').value !== '' ? parseInt(document.getElementById('f-fb-followers').value) : null,
-    facebook_active_status:    parseBoolField(document.getElementById('f-fb-active').value),
-    facebook_verified_status:  parseBoolField(document.getElementById('f-fb-verified').value),
-    twitter_id:                document.getElementById('f-tw-id').value.trim()        || null,
-    twitter_followers:         document.getElementById('f-tw-followers').value !== '' ? parseInt(document.getElementById('f-tw-followers').value) : null,
-    twitter_active_status:     parseBoolField(document.getElementById('f-tw-active').value),
-    twitter_verified_status:   parseBoolField(document.getElementById('f-tw-verified').value),
-    instagram_id:              document.getElementById('f-ig-id').value.trim()        || null,
-    instagram_followers:       document.getElementById('f-ig-followers').value !== '' ? parseInt(document.getElementById('f-ig-followers').value) : null,
-    instagram_active_status:   parseBoolField(document.getElementById('f-ig-active').value),
-    instagram_verified_status: parseBoolField(document.getElementById('f-ig-verified').value),
-  };
+        try {
+          const qs = buildParams(extra);
+          const data = await fetch(`/api/profiles?${qs}`).then((r) => r.json());
 
-  const url    = state.editingId ? `/api/profiles/${state.editingId}` : '/api/profiles';
-  const method = state.editingId ? 'PUT' : 'POST';
+          gridApi.setGridOption("rowData", data.rows);
+          state.totalRows = data.total;
 
-  try {
-    document.getElementById('btn-save').disabled = true;
-    const res = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.detail || `HTTP ${res.status}`);
-    }
-    closeModal();
-    showToast(state.editingId ? 'Profile updated' : 'Profile created', 'success');
-    resetAndLoad();
-  } catch (e) {
-    showToast(`Save failed: ${e.message}`, 'error');
-  } finally {
-    document.getElementById('btn-save').disabled = false;
-  }
-}
+          if (data.next_cursor) {
+            state.cursorStack[state.pageIndex + 1] = data.next_cursor;
+          } else {
+            state.cursorStack = state.cursorStack.slice(0, state.pageIndex + 1);
+          }
 
-// ── DELETE ────────────────────────────────────────────────────────────────────
-let pendingDeleteId = null;
+          updatePaginationUI(data.next_cursor);
+          updateResultCount(data.rows.length, data.total);
+        } catch (e) {
+          showToast("Failed to load profiles", "error");
+          console.error(e);
+        } finally {
+          setLoading(false);
+        }
+      }
 
-function confirmDelete(id, name) {
-  pendingDeleteId = id;
-  document.getElementById('confirm-title').textContent = 'Delete Profile?';
-  document.getElementById('confirm-msg').textContent   =
-    `"${name || 'This profile'}" will be permanently deleted.`;
-  document.getElementById('confirm-ok').onclick = executeDelete;
-  document.getElementById('confirm-overlay').classList.add('open');
-}
+      function updatePaginationUI(hasNextCursor) {
+        const pageNum = state.pageIndex + 1;
+        document.getElementById("current-page-info").innerHTML =
+          `Page <strong>${pageNum}</strong> · <span style="color:var(--text3)">${state.totalRows.toLocaleString()} total</span>`;
+        document.getElementById("btn-first").disabled = state.pageIndex === 0;
+        document.getElementById("btn-prev").disabled = state.pageIndex === 0;
+        document.getElementById("btn-next").disabled =
+          !hasNextCursor && !state.cursorStack[state.pageIndex + 1];
+      }
 
-function closeConfirm() {
-  pendingDeleteId = null;
-  document.getElementById('confirm-overlay').classList.remove('open');
-}
+      function updateResultCount(shown, total) {
+        const start = state.pageIndex * state.pageSize + 1;
+        const end = start + shown - 1;
+        document.getElementById("result-count").textContent =
+          `Showing ${start.toLocaleString()}–${end.toLocaleString()} of ${total.toLocaleString()} rows`;
+      }
 
-async function executeDelete() {
-  if (!pendingDeleteId) return;
-  closeConfirm();
-  try {
-    await fetch(`/api/profiles/${pendingDeleteId}`, { method: 'DELETE' });
-    showToast('Profile deleted', 'success');
-    resetAndLoad();
-  } catch (e) {
-    showToast('Delete failed', 'error');
-  }
-}
+      function goFirst() {
+        state.pageIndex = 0;
+        loadPage();
+      }
+      function goPrev() {
+        if (state.pageIndex > 0) {
+          state.pageIndex--;
+          loadPage();
+        }
+      }
+      function goNext() {
+        if (state.cursorStack[state.pageIndex + 1] !== undefined) {
+          state.pageIndex++;
+          loadPage();
+        }
+      }
+      function changePageSize(val) {
+        state.pageSize = parseInt(val);
+        resetAndLoad();
+      }
 
-function openBulkDelete() {
-  const rows = gridApi.getSelectedRows();
-  if (!rows.length) return;
-  document.getElementById('confirm-title').textContent = `Delete ${rows.length} profiles?`;
-  document.getElementById('confirm-msg').textContent   = 'This cannot be undone.';
-  document.getElementById('confirm-ok').onclick = async () => {
-    closeConfirm();
-    try {
-      await fetch('/api/profiles/bulk-delete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids: rows.map(r => r.id) }),
+      // ── COLUMN TOGGLE ─────────────────────────────────────────────────────────────
+      let contactHidden = false;
+      function toggleColumnGroup() {
+        contactHidden = !contactHidden;
+        gridApi.setColumnsVisible(
+          ["whatsapp_number", "email_id"],
+          !contactHidden,
+        );
+        document.getElementById("btn-col-toggle").textContent = contactHidden
+          ? "⊞ Show Contact"
+          : "⊟ Hide Contact";
+      }
+
+      // ── FILTERS ───────────────────────────────────────────────────────────────────
+      let searchDebounce;
+      function setupFilterListeners() {
+        document.getElementById("f-search").addEventListener("input", () => {
+          clearTimeout(searchDebounce);
+          searchDebounce = setTimeout(resetAndLoad, 350);
+        });
+        ["f-zone", "f-party", "f-const", "f-desig"].forEach((id) => {
+          document.getElementById(id).addEventListener("change", resetAndLoad);
+        });
+      }
+
+      function toggleFilter(key) {
+        state.activeFilters[key] = !state.activeFilters[key];
+        document
+          .getElementById(`tog-${key}`)
+          .classList.toggle("on", state.activeFilters[key]);
+        resetAndLoad();
+      }
+
+      function resetFilters() {
+        document.getElementById("f-search").value = "";
+        document.getElementById("f-zone").value = "";
+        document.getElementById("f-party").value = "";
+        document.getElementById("f-const").value = "";
+        document.getElementById("f-desig").value = "";
+        state.activeFilters.active = false;
+        state.activeFilters.verified = false;
+        document.getElementById("tog-active").classList.remove("on");
+        document.getElementById("tog-verified").classList.remove("on");
+        resetAndLoad();
+      }
+
+      // ── MODAL ─────────────────────────────────────────────────────────────────────
+      function switchTab(n) {
+        document
+          .querySelectorAll(".tab-panel")
+          .forEach((p, i) => p.classList.toggle("active", i === n));
+        document
+          .querySelectorAll(".modal-tab")
+          .forEach((t, i) => t.classList.toggle("active", i === n));
+      }
+
+      function openAdd() {
+        state.editingId = null;
+        document.getElementById("modal-title").textContent = "Add Profile";
+        clearForm();
+        switchTab(0);
+        document.getElementById("edit-overlay").classList.add("open");
+      }
+
+      function openEdit(id) {
+        state.editingId = id;
+        document.getElementById("modal-title").textContent = "Edit Profile";
+        fetch(`/api/profiles/${id}`)
+          .then((r) => r.json())
+          .then((p) => {
+            document.getElementById("f-name").value = p.name || "";
+            document.getElementById("f-designation").value =
+              p.designation || "";
+            document.getElementById("f-zone-inp").value = p.zone || "";
+            document.getElementById("f-party-inp").value =
+              p.party_district || "";
+            document.getElementById("f-const-inp").value = p.constituency || "";
+            document.getElementById("f-whatsapp").value =
+              p.whatsapp_number || "";
+            document.getElementById("f-dob").value = p.dob || "";
+            document.getElementById("f-email").value = p.email_id || "";
+            document.getElementById("f-address").value = p.address || "";
+            document.getElementById("f-fb-id").value = p.facebook_id || "";
+            document.getElementById("f-fb-followers").value =
+              p.facebook_followers ?? "";
+            document.getElementById("f-fb-active").value = boolToSelectVal(
+              p.facebook_active_status,
+            );
+            document.getElementById("f-fb-verified").value = boolToSelectVal(
+              p.facebook_verified_status,
+            );
+            document.getElementById("f-tw-id").value = p.twitter_id || "";
+            document.getElementById("f-tw-followers").value =
+              p.twitter_followers ?? "";
+            document.getElementById("f-tw-active").value = boolToSelectVal(
+              p.twitter_active_status,
+            );
+            document.getElementById("f-tw-verified").value = boolToSelectVal(
+              p.twitter_verified_status,
+            );
+            document.getElementById("f-ig-id").value = p.instagram_id || "";
+            document.getElementById("f-ig-followers").value =
+              p.instagram_followers ?? "";
+            document.getElementById("f-ig-active").value = boolToSelectVal(
+              p.instagram_active_status,
+            );
+            document.getElementById("f-ig-verified").value = boolToSelectVal(
+              p.instagram_verified_status,
+            );
+          })
+          .catch(() => showToast("Failed to load profile", "error"));
+        switchTab(0);
+        document.getElementById("edit-overlay").classList.add("open");
+      }
+
+      function clearForm() {
+        [
+          "f-name",
+          "f-designation",
+          "f-zone-inp",
+          "f-party-inp",
+          "f-const-inp",
+          "f-whatsapp",
+          "f-dob",
+          "f-email",
+          "f-address",
+          "f-fb-id",
+          "f-fb-followers",
+          "f-tw-id",
+          "f-tw-followers",
+          "f-ig-id",
+          "f-ig-followers",
+        ].forEach((id) => {
+          document.getElementById(id).value = "";
+        });
+        [
+          "f-fb-active",
+          "f-fb-verified",
+          "f-tw-active",
+          "f-tw-verified",
+          "f-ig-active",
+          "f-ig-verified",
+        ].forEach((id) => {
+          document.getElementById(id).value = "";
+        });
+      }
+
+      function closeModal() {
+        document.getElementById("edit-overlay").classList.remove("open");
+      }
+
+      async function saveProfile() {
+        const name = document.getElementById("f-name").value.trim();
+        if (!name) {
+          showToast("Name is required", "error");
+          return;
+        }
+
+        const body = {
+          name,
+          designation:
+            document.getElementById("f-designation").value.trim() || null,
+          zone: document.getElementById("f-zone-inp").value.trim() || null,
+          party_district:
+            document.getElementById("f-party-inp").value.trim() || null,
+          constituency:
+            document.getElementById("f-const-inp").value.trim() || null,
+          whatsapp_number:
+            document.getElementById("f-whatsapp").value.trim() || null,
+          dob: document.getElementById("f-dob").value || null,
+          email_id: document.getElementById("f-email").value.trim() || null,
+          address: document.getElementById("f-address").value.trim() || null,
+          facebook_id: document.getElementById("f-fb-id").value.trim() || null,
+          facebook_followers:
+            document.getElementById("f-fb-followers").value !== ""
+              ? parseInt(document.getElementById("f-fb-followers").value)
+              : null,
+          facebook_active_status: parseBoolField(
+            document.getElementById("f-fb-active").value,
+          ),
+          facebook_verified_status: parseBoolField(
+            document.getElementById("f-fb-verified").value,
+          ),
+          twitter_id: document.getElementById("f-tw-id").value.trim() || null,
+          twitter_followers:
+            document.getElementById("f-tw-followers").value !== ""
+              ? parseInt(document.getElementById("f-tw-followers").value)
+              : null,
+          twitter_active_status: parseBoolField(
+            document.getElementById("f-tw-active").value,
+          ),
+          twitter_verified_status: parseBoolField(
+            document.getElementById("f-tw-verified").value,
+          ),
+          instagram_id: document.getElementById("f-ig-id").value.trim() || null,
+          instagram_followers:
+            document.getElementById("f-ig-followers").value !== ""
+              ? parseInt(document.getElementById("f-ig-followers").value)
+              : null,
+          instagram_active_status: parseBoolField(
+            document.getElementById("f-ig-active").value,
+          ),
+          instagram_verified_status: parseBoolField(
+            document.getElementById("f-ig-verified").value,
+          ),
+        };
+
+        const url = state.editingId
+          ? `/api/profiles/${state.editingId}`
+          : "/api/profiles";
+        const method = state.editingId ? "PUT" : "POST";
+
+        try {
+          document.getElementById("btn-save").disabled = true;
+          const res = await fetch(url, {
+            method,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+          });
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.detail || `HTTP ${res.status}`);
+          }
+          closeModal();
+          showToast(
+            state.editingId ? "Profile updated" : "Profile created",
+            "success",
+          );
+          resetAndLoad();
+        } catch (e) {
+          showToast(`Save failed: ${e.message}`, "error");
+        } finally {
+          document.getElementById("btn-save").disabled = false;
+        }
+      }
+
+      // ── DELETE ────────────────────────────────────────────────────────────────────
+      let pendingDeleteId = null;
+
+      function confirmDelete(id, name) {
+        if (
+          id === null ||
+          id === undefined ||
+          String(id).trim().toLowerCase() === "null" ||
+          String(id).trim() === ""
+        ) {
+          showToast("Invalid profile id", "error");
+          return;
+        }
+        pendingDeleteId = id;
+        document.getElementById("confirm-title").textContent =
+          "Delete Profile?";
+        document.getElementById("confirm-msg").textContent =
+          `"${name || "This profile"}" will be permanently deleted.`;
+        document.getElementById("confirm-ok").onclick = executeDelete;
+        document.getElementById("confirm-overlay").classList.add("open");
+      }
+
+      function closeConfirm() {
+        document.getElementById("confirm-overlay").classList.remove("open");
+      }
+
+      async function executeDelete() {
+        const pid = pendingDeleteId;
+        if (!pid) return;
+        // close UI first, but use the captured pid for the request
+        closeConfirm();
+        pendingDeleteId = null;
+        try {
+          const res = await fetch(`/api/profiles/${pid}`, { method: "DELETE" });
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            showToast(err.detail || "Delete failed", "error");
+            return;
+          }
+          showToast("Profile deleted", "success");
+          resetAndLoad();
+        } catch (e) {
+          showToast("Delete failed", "error");
+        }
+      }
+
+      function openBulkDelete() {
+        const rows = gridApi.getSelectedRows();
+        if (!rows.length) return;
+        document.getElementById("confirm-title").textContent =
+          `Delete ${rows.length} profiles?`;
+        document.getElementById("confirm-msg").textContent =
+          "This cannot be undone.";
+        document.getElementById("confirm-ok").onclick = async () => {
+          closeConfirm();
+          try {
+            await fetch("/api/profiles/bulk-delete", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ ids: rows.map((r) => r.id) }),
+            });
+            showToast(`Deleted ${rows.length} profiles`, "success");
+            resetAndLoad();
+          } catch (e) {
+            showToast("Bulk delete failed", "error");
+          }
+        };
+        document.getElementById("confirm-overlay").classList.add("open");
+      }
+
+      // ── CSV EXPORT ────────────────────────────────────────────────────────────────
+      document.getElementById("btn-export").addEventListener("click", () => {
+        const qs = buildParams();
+        window.location.href = `/api/export/csv?${qs}`;
       });
-      showToast(`Deleted ${rows.length} profiles`, 'success');
-      resetAndLoad();
-    } catch (e) {
-      showToast('Bulk delete failed', 'error');
-    }
-  };
-  document.getElementById('confirm-overlay').classList.add('open');
-}
 
-// ── CSV EXPORT ────────────────────────────────────────────────────────────────
-document.getElementById('btn-export').addEventListener('click', () => {
-  const qs = buildParams();
-  window.location.href = `/api/export/csv?${qs}`;
-});
+      document.getElementById("btn-add").addEventListener("click", openAdd);
 
-document.getElementById('btn-add').addEventListener('click', openAdd);
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          closeModal();
+          closeConfirm();
+        }
+      });
 
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeModal(); closeConfirm(); }
-});
+      // Delegated click handler for action buttons inside grid rows. This avoids
+      // inline onclick handlers and quoting/escaping issues when names contain
+      // quotes or special characters.
+      document.addEventListener("click", (e) => {
+        const btn = e.target.closest(".act-btn");
+        if (!btn) return;
+        const action = btn.dataset.action;
+        const id = btn.dataset.id;
+        const name = btn.dataset.name || "";
+        if (action === "edit") {
+          openEdit(id);
+        } else if (action === "delete") {
+          confirmDelete(id, name);
+        }
+      });
 
-// ── INIT ──────────────────────────────────────────────────────────────────────
-(async () => {
-  initGrid();
-  setupFilterListeners();
-  await Promise.all([loadFilterOptions(), loadStats()]);
-  resetAndLoad();
-})();
-</script>
-</body>
+      // ── INIT ──────────────────────────────────────────────────────────────────────
+      (async () => {
+        initGrid();
+        setupFilterListeners();
+        await Promise.all([loadFilterOptions(), loadStats()]);
+        resetAndLoad();
+      })();
+    </script>
+  </body>
 </html>
