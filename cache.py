@@ -21,24 +21,47 @@ import functools
 from typing import Any, Callable, Optional
 
 import redis.asyncio as aioredis
+import time
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
 # Single shared connection pool — created once on first use.
 _redis_pool: Optional[aioredis.Redis] = None
+# Timestamp of last failure to connect to Redis. Used to fast-fail subsequent
+# cache attempts for a short cooldown window to avoid repeatedly waiting on
+# socket timeouts when Redis is down or unreachable.
+_last_failed: float = 0.0
+# Cooldown (seconds) after a failure during which cache calls will immediately
+# return a miss instead of attempting to reconnect.
+_FAIL_COOLDOWN = 10.0
 
 
 async def get_redis() -> aioredis.Redis:
     global _redis_pool
+    # If we recently failed to connect, skip attempting again for a short
+    # cooldown window — this prevents each incoming request from waiting
+    # on a socket timeout when Redis is down.
+    if _redis_pool is None and (_last_failed and (time.time() - _last_failed) < _FAIL_COOLDOWN):
+        return None
+
     if _redis_pool is None:
-        _redis_pool = aioredis.from_url(
-            REDIS_URL,
-            encoding="utf-8",
-            decode_responses=True,
-            max_connections=20,
-            socket_connect_timeout=2,   # fail fast if Redis is unreachable
-            socket_timeout=2,
-        )
+        try:
+            _redis_pool = aioredis.from_url(
+                REDIS_URL,
+                encoding="utf-8",
+                decode_responses=True,
+                max_connections=20,
+                socket_connect_timeout=0.01,   # keep it snappy
+                socket_timeout=0.01,
+            )
+            return _redis_pool
+        except Exception:
+            # Record failure time and return None so callers treat this as
+            # a cache miss without blocking.
+            nonlocal_flag = globals()
+            nonlocal_flag['_last_failed'] = time.time()
+            return None
+
     return _redis_pool
 
 
@@ -50,6 +73,8 @@ async def get_redis() -> aioredis.Redis:
 async def cache_get(key: str) -> Optional[Any]:
     try:
         r = await get_redis()
+        if r is None:
+            return None
         raw = await r.get(key)
         if raw is None:
             return None
@@ -62,6 +87,8 @@ async def cache_get(key: str) -> Optional[Any]:
 async def cache_set(key: str, value: Any, ttl: int = 300) -> None:
     try:
         r = await get_redis()
+        if r is None:
+            return
         await r.setex(key, ttl, json.dumps(value, default=str))
     except Exception:
         pass  # Best-effort — skip caching when Redis is down.
@@ -71,6 +98,8 @@ async def invalidate_prefix(prefix: str) -> int:
     """Delete all Redis keys that start with `prefix:`. Returns count deleted."""
     try:
         r = await get_redis()
+        if r is None:
+            return 0
         keys = await r.keys(f"{prefix}:*")
         if keys:
             return await r.delete(*keys)

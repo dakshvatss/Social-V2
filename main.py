@@ -15,7 +15,7 @@ from schemas import (
     ProfileCreate, ProfileUpdate, ProfileResponse,
     ProfileListResponse, BulkDeleteRequest,
 )
-from cache import cache_get, cache_set, invalidate_prefix, close_redis
+from cache import cache_get, cache_set, invalidate_prefix, close_redis, cache_response
 
 import time
 from fastapi import Request
@@ -128,6 +128,7 @@ async def analytics_page():
 
 # ── List / Keyset pagination ───────────────────────────────────────────────────
 @app.get("/api/profiles", response_model=ProfileListResponse)
+@cache_response(prefix="profiles", ttl=30)
 async def list_profiles(
     cursor:         int  = Query(0, ge=0),
     limit:          int  = Query(50, ge=1, le=200),
@@ -228,6 +229,8 @@ async def update_profile(
     await db.refresh(p)
     await invalidate_prefix("stats")
     await invalidate_prefix("analytics")
+    await invalidate_prefix("profiles")
+    await invalidate_prefix("profiles")
     return p
 
 
@@ -258,6 +261,7 @@ async def delete_profile(profile_id: str, db: AsyncSession = Depends(get_db)):
         await db.commit()
         await invalidate_prefix("stats")
         await invalidate_prefix("analytics")
+        await invalidate_prefix("profiles")
         return {"message": "Deleted"}
     except Exception as e:
         logger.exception("delete_profile: unexpected error deleting id=%s: %s", pid, e)
@@ -276,6 +280,7 @@ async def bulk_delete(body: BulkDeleteRequest, db: AsyncSession = Depends(get_db
     await db.commit()
     await invalidate_prefix("stats")
     await invalidate_prefix("analytics")
+    await invalidate_prefix("profiles")
     return {"deleted": result.rowcount}
 
 
