@@ -222,13 +222,24 @@ async def update_profile(
 # ── Delete single ──────────────────────────────────────────────────────────────
 @app.delete("/api/profiles/{profile_id}")
 async def delete_profile(profile_id: int, db: AsyncSession = Depends(get_db)):
-    p = await db.get(SocialProfile, profile_id)
-    if not p:
+    stmt = (
+        delete(SocialProfile)
+        .where(SocialProfile.id == profile_id)
+        .execution_options(synchronize_session=False)
+    )
+    result = await db.execute(stmt)
+
+    if result.rowcount == 0:
         raise HTTPException(status_code=404, detail="Profile not found")
-    await db.delete(p)
+
     await db.commit()
-    await invalidate_prefix("stats")
-    await invalidate_prefix("analytics")
+
+    try:
+        await invalidate_prefix("stats")
+        await invalidate_prefix("analytics")
+    except Exception:
+        pass
+
     return {"message": "Deleted"}
 
 
