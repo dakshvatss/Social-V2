@@ -149,7 +149,7 @@
         color: #fff;
       }
       .btn-danger:hover {
-        background: #dc2626;
+        background: #b81717;
       }
       .btn-success {
         background: var(--success);
@@ -569,6 +569,13 @@
       .act-edit:hover {
         background: rgba(61, 142, 240, 0.3);
       }
+      .act-upload {
+        background: rgba(61, 142, 240, 0.15);
+        color: var(--accent2);
+      }
+      .act-upload:hover {
+        background: rgba(61, 142, 240, 0.3);
+      }
       .act-del {
         background: rgba(239, 68, 68, 0.12);
         color: var(--danger);
@@ -641,6 +648,51 @@
         background: var(--danger);
         border-color: var(--danger);
         color: #fff;
+      }
+      /* Image viewer overlay */
+      .img-viewer-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.85);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2200;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.15s;
+      }
+      .img-viewer-overlay.open {
+        opacity: 1;
+        pointer-events: all;
+      }
+      .img-viewer-box {
+        position: relative;
+        max-width: 90vw;
+        max-height: 90vh;
+      }
+      .img-viewer-box img {
+        display: block;
+        max-width: 100%;
+        max-height: 100%;
+        border-radius: 8px;
+      }
+      .img-close-btn {
+        position: absolute;
+        left: -12px;
+        top: -12px;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.6);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        cursor: pointer;
+        font-weight: 700;
+        z-index: 10;
       }
       .modal-tabs {
         display: flex;
@@ -1291,6 +1343,71 @@
     </div>
 
     <!-- CONFIRM -->
+    <!-- UPLOAD MODAL -->
+    <div class="modal-overlay" id="upload-overlay">
+      <div class="modal" style="width: 360px">
+        <div class="modal-header">
+          <div class="modal-title">Upload Image</div>
+          <button class="modal-close" onclick="closeUpload()">✕</button>
+        </div>
+        <div
+          class="modal-body"
+          style="
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+          "
+        >
+          <div style="color: var(--text2); font-size: 13px">
+            Upload or view the profile image
+          </div>
+          <div style="display: flex; gap: 10px; align-items: center">
+            <button class="btn btn-primary" id="upload-btn-modal">
+              Upload image
+            </button>
+            <button class="btn btn-ghost" id="view-btn-modal">
+              View image
+            </button>
+            <button
+              class="btn btn-danger btn-sm"
+              id="delete-btn-modal"
+              title="Delete uploaded image"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- IMAGE VIEWER (modal-style to match Edit/Create modal) -->
+    <div class="modal-overlay" id="image-viewer">
+      <div class="modal" style="width: min(800px, 95vw)">
+        <div class="modal-header">
+          <div class="modal-title">Profile image</div>
+          <button class="modal-close" id="img-close">✕</button>
+        </div>
+        <div
+          class="modal-body"
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+          "
+        >
+          <button class="img-close-btn" id="img-close-inner">×</button>
+          <img
+            id="img-preview"
+            src="about:blank"
+            alt="Profile image"
+            style="max-width: 100%; max-height: 70vh; border-radius: 8px"
+          />
+        </div>
+      </div>
+    </div>
+
     <div class="confirm-overlay" id="confirm-overlay">
       <div class="confirm-box">
         <div class="confirm-icon">⚠️</div>
@@ -1321,6 +1438,8 @@
         isLoading: false,
         cursorStack: [null],
         pageIndex: 0,
+        // Map of profileId -> uploaded image URL (in-memory)
+        uploads: {},
       };
 
       // ── HELPERS ───────────────────────────────────────────────────────────────────
@@ -1656,6 +1775,7 @@
       <div class="action-cell">
         <button class="act-btn act-edit" data-action="edit" data-id="${p.data.id}">Edit</button>
         <button class="act-btn act-del"  data-action="delete" data-id="${p.data.id}" data-name="${esc(p.data.name || "")}">Del</button>
+  <button class="act-btn act-upload" data-action="upload" data-id="${p.data.id}" title="Upload image">↑</button>
       </div>`,
         },
       ];
@@ -2091,6 +2211,122 @@
         }
       });
 
+      // Upload modal functions
+      function openUpload(id) {
+        state.currentUploadId = id;
+        // Enable/disable view button depending on whether an image was uploaded
+        const has = !!state.uploads[id];
+        document.getElementById("view-btn-modal").disabled = !has;
+        document.getElementById("upload-overlay").classList.add("open");
+      }
+
+      function closeUpload() {
+        document.getElementById("upload-overlay").classList.remove("open");
+      }
+
+      async function uploadImageModal() {
+        const id = state.currentUploadId;
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = "image/jpeg,image/png";
+        input.onchange = async () => {
+          const f = input.files && input.files[0];
+          if (!f) return;
+          if (f.size > 5 * 1024 * 1024) {
+            showToast("File too large (max 5MB)", "error");
+            return;
+          }
+          const form = new FormData();
+          form.append("file", f, f.name);
+          try {
+            const res = await fetch(`/api/profiles/${id}/upload`, {
+              method: "POST",
+              body: form,
+            });
+            if (!res.ok) {
+              const err = await res.json().catch(() => ({}));
+              showToast(err.detail || "Upload failed", "error");
+              return;
+            }
+            const data = await res.json();
+            state.uploads[id] = data.url;
+            document.getElementById("view-btn-modal").disabled = false;
+            showToast("Image uploaded", "success");
+          } catch (e) {
+            console.error(e);
+            showToast("Upload failed", "error");
+          }
+        };
+        input.click();
+      }
+
+      function viewImageModal() {
+        const id = state.currentUploadId;
+        const url = state.uploads[id];
+        if (!url) {
+          // Show the same style as the 'Profile created' alert per UX request
+          showToast("please upload file", "success");
+          return;
+        }
+        const img = document.getElementById("img-preview");
+        img.src = url;
+        document.getElementById("image-viewer").classList.add("open");
+      }
+
+      function closeImageViewer() {
+        document.getElementById("image-viewer").classList.remove("open");
+        const img = document.getElementById("img-preview");
+        img.src = "about:blank";
+      }
+
+      async function deleteImageModal() {
+        const id = state.currentUploadId;
+        const url = state.uploads[id];
+        if (!url) {
+          showToast("please upload file", "success");
+          return;
+        }
+        try {
+          const res = await fetch(`/api/profiles/${id}/upload`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url }),
+          });
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            showToast(err.detail || "Delete failed", "error");
+            return;
+          }
+          delete state.uploads[id];
+          document.getElementById("view-btn-modal").disabled = true;
+          showToast("Image deleted", "success");
+        } catch (e) {
+          console.error(e);
+          showToast("Delete failed", "error");
+        }
+      }
+
+      // Wire upload modal buttons
+      document.addEventListener("DOMContentLoaded", () => {
+        const up = document.getElementById("upload-btn-modal");
+        const vp = document.getElementById("view-btn-modal");
+        const del = document.getElementById("delete-btn-modal");
+        const imgClose = document.getElementById("img-close");
+        const imgCloseInner = document.getElementById("img-close-inner");
+        if (up) up.addEventListener("click", uploadImageModal);
+        if (vp) vp.addEventListener("click", viewImageModal);
+        if (del) del.addEventListener("click", deleteImageModal);
+        if (imgClose) imgClose.addEventListener("click", closeImageViewer);
+        if (imgCloseInner)
+          imgCloseInner.addEventListener("click", closeImageViewer);
+        // Close viewer when overlay clicked outside box
+        const viewer = document.getElementById("image-viewer");
+        if (viewer)
+          viewer.addEventListener("click", (e) => {
+            if (e.target === viewer) closeImageViewer();
+          });
+      });
+
       // Delegated click handler for action buttons inside grid rows. This avoids
       // inline onclick handlers and quoting/escaping issues when names contain
       // quotes or special characters.
@@ -2104,6 +2340,8 @@
           openEdit(id);
         } else if (action === "delete") {
           confirmDelete(id, name);
+        } else if (action === "upload") {
+          openUpload(id);
         }
       });
 

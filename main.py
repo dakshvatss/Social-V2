@@ -2,7 +2,7 @@ import csv
 import io
 from typing import Optional
 
-from fastapi import FastAPI, Depends, HTTPException, Query
+from fastapi import FastAPI, Depends, HTTPException, Query, UploadFile, File, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -19,7 +19,10 @@ from cache import cache_get, cache_set, invalidate_prefix, close_redis, cache_re
 
 import time
 from fastapi import Request
+import asyncio
+from pathlib import Path
 import logging
+import os
 
 app = FastAPI(title="Social Profiles Manager", version="2.0.0")
 
@@ -266,6 +269,58 @@ async def delete_profile(profile_id: str, db: AsyncSession = Depends(get_db)):
     except Exception as e:
         logger.exception("delete_profile: unexpected error deleting id=%s: %s", pid, e)
         raise HTTPException(status_code=500, detail="Failed to delete profile")
+
+
+# ── Upload profile image ─────────────────────────────────────────────────────
+@app.post("/api/profiles/{profile_id}/upload")
+async def upload_profile_image(profile_id: int, file: UploadFile = File(...)):
+    """Accept a single JPG/PNG upload and save under static/uploads. Returns URL."""
+    # Basic validation
+    if file.content_type not in ("image/jpeg", "image/png"):
+        raise HTTPException(status_code=400, detail="Only JPEG and PNG files are allowed")
+
+    data = await file.read()
+    max_bytes = 5 * 1024 * 1024
+    if len(data) > max_bytes:
+        raise HTTPException(status_code=400, detail="File too large (max 5MB)")
+
+    ext = ".jpg" if file.content_type == "image/jpeg" else ".png"
+    uploads_dir = Path("static") / "uploads"
+    uploads_dir.mkdir(parents=True, exist_ok=True)
+    fname = f"profile_{profile_id}_{int(time.time())}{ext}"
+    dest = uploads_dir / fname
+
+    try:
+        # Write using a thread to avoid blocking the event loop for large files
+        await asyncio.to_thread(dest.write_bytes, data)
+    except Exception as e:
+        logger.exception("upload_profile_image: failed to save file for %s: %s", profile_id, e)
+        raise HTTPException(status_code=500, detail="Failed to save file")
+
+    url = f"/static/uploads/{fname}"
+    return {"url": url}
+
+
+@app.delete("/api/profiles/{profile_id}/upload")
+async def delete_profile_image(profile_id: int, body: dict = Body(...)):
+    """Delete an uploaded image previously stored under /static/uploads."""
+    url = body.get("url") if isinstance(body, dict) else None
+    if not url:
+        raise HTTPException(status_code=400, detail="Missing url")
+    # Only allow deleting files from our uploads directory
+    if not str(url).startswith("/static/uploads/"):
+        raise HTTPException(status_code=400, detail="Invalid url")
+    fname = os.path.basename(url)
+    uploads_dir = Path("static") / "uploads"
+    target = uploads_dir / fname
+    if not target.exists():
+        raise HTTPException(status_code=404, detail="File not found")
+    try:
+        await asyncio.to_thread(target.unlink)
+    except Exception as e:
+        logger.exception("delete_profile_image: failed to delete %s: %s", target, e)
+        raise HTTPException(status_code=500, detail="Failed to delete file")
+    return {"deleted": True}
 
 
 # ── Bulk delete ────────────────────────────────────────────────────────────────
