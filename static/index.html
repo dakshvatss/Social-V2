@@ -149,7 +149,7 @@
         color: #fff;
       }
       .btn-danger:hover {
-        background: #b81717;
+        background: #740c0c;
       }
       .btn-success {
         background: var(--success);
@@ -2264,8 +2264,8 @@
         const id = state.currentUploadId;
         const url = state.uploads[id];
         if (!url) {
-          // Show the same style as the 'Profile created' alert per UX request
-          showToast("please upload file", "success");
+          // Show error style when no image is available
+          showToast("please upload file", "error");
           return;
         }
         const img = document.getElementById("img-preview");
@@ -2283,7 +2283,7 @@
         const id = state.currentUploadId;
         const url = state.uploads[id];
         if (!url) {
-          showToast("please upload file", "success");
+          showToast("please upload file", "error");
           return;
         }
         try {
