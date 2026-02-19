@@ -497,6 +497,11 @@
         border-right: 1px solid var(--border) !important;
         display: flex;
         align-items: center;
+        /* Allow selecting and copying text from grid cells */
+        -webkit-user-select: text;
+        -moz-user-select: text;
+        -ms-user-select: text;
+        user-select: text;
       }
       .ag-theme-social .ag-paging-panel {
         display: none !important;
