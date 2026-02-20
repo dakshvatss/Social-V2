@@ -55,6 +55,7 @@ pip install -r requirements.txt
 ```bash
 cp .env.example .env
 # Edit .env with your PostgreSQL and Redis connection strings
+DATABASE_URL=postgresql://username:password@localhost:5432/mydatabase
 ```
 
 ### 3. Run migrations
@@ -68,7 +69,7 @@ and creates all B-tree + GIN indexes.
 
 **Development:**
 ```bash
-uvicorn main:app --host 0.0.0.0 --port 5000 --reload
+uvicorn main:app --host 127.0.0.1 --port 5000 --reload
 ```
 
 **Production** (Gunicorn with async Uvicorn workers):
