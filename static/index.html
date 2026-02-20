@@ -2222,13 +2222,30 @@
       // Upload modal functions
       function openUpload(id) {
         state.currentUploadId = id;
-        // Enable/disable view button depending on whether an image was uploaded
-        const has = !!state.uploads[id];
-        document.getElementById("view-btn-modal").disabled = !has;
-        // Show/hide delete button depending on whether an image exists
+        // Initially disable view until we confirm an upload exists on server
+        const viewBtn = document.getElementById("view-btn-modal");
         const delBtn = document.getElementById("delete-btn-modal");
-        if (delBtn) delBtn.style.display = has ? "inline-flex" : "none";
+        if (viewBtn) viewBtn.disabled = true;
+        if (delBtn) delBtn.style.display = "none";
         document.getElementById("upload-overlay").classList.add("open");
+
+        // Fetch persisted upload info for this profile (if any) and update UI
+        (async () => {
+          try {
+            const res = await fetch(`/api/profiles/${id}/upload`, {
+              cache: "no-store",
+            });
+            if (!res.ok) return; // no uploaded image
+            const data = await res.json();
+            if (data && data.url) {
+              state.uploads[id] = data.url;
+              if (viewBtn) viewBtn.disabled = false;
+              if (delBtn) delBtn.style.display = "inline-flex";
+            }
+          } catch (e) {
+            console.error("openUpload: failed to fetch upload info", e);
+          }
+        })();
       }
 
       function closeUpload() {

@@ -22,6 +22,7 @@ from fastapi import Request
 import asyncio
 from pathlib import Path
 import logging
+import json
 import os
 
 app = FastAPI(title="Social Profiles Manager", version="2.0.0")
@@ -298,6 +299,29 @@ async def upload_profile_image(profile_id: int, file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail="Failed to save file")
 
     url = f"/static/uploads/{fname}"
+    # Persist mapping of profile_id -> uploaded url so uploads survive restarts
+    try:
+        metadata_path = Path("static") / "uploads" / "metadata.json"
+        def _update_meta():
+            if metadata_path.exists():
+                try:
+                    with open(metadata_path, "r", encoding="utf-8") as fh:
+                        data = json.load(fh)
+                except Exception:
+                    data = {}
+            else:
+                data = {}
+            data[str(profile_id)] = url
+            # atomic write
+            tmp = metadata_path.with_suffix('.tmp')
+            with open(tmp, 'w', encoding='utf-8') as fh:
+                json.dump(data, fh)
+            os.replace(tmp, metadata_path)
+
+        await asyncio.to_thread(_update_meta)
+    except Exception:
+        logger.exception("upload_profile_image: failed to update metadata for %s", profile_id)
+
     return {"url": url}
 
 
@@ -317,10 +341,48 @@ async def delete_profile_image(profile_id: int, body: dict = Body(...)):
         raise HTTPException(status_code=404, detail="File not found")
     try:
         await asyncio.to_thread(target.unlink)
+        # remove from metadata
+        metadata_path = Path("static") / "uploads" / "metadata.json"
+        def _remove_meta():
+            if not metadata_path.exists():
+                return
+            try:
+                with open(metadata_path, 'r', encoding='utf-8') as fh:
+                    data = json.load(fh)
+            except Exception:
+                data = {}
+            data.pop(str(profile_id), None)
+            tmp = metadata_path.with_suffix('.tmp')
+            with open(tmp, 'w', encoding='utf-8') as fh:
+                json.dump(data, fh)
+            os.replace(tmp, metadata_path)
+
+        await asyncio.to_thread(_remove_meta)
     except Exception as e:
         logger.exception("delete_profile_image: failed to delete %s: %s", target, e)
         raise HTTPException(status_code=500, detail="Failed to delete file")
     return {"deleted": True}
+
+
+@app.get("/api/profiles/{profile_id}/upload")
+async def get_profile_image(profile_id: int):
+    """Return the uploaded image URL for a profile if present."""
+    metadata_path = Path("static") / "uploads" / "metadata.json"
+    if not metadata_path.exists():
+        raise HTTPException(status_code=404, detail="Not found")
+
+    def _read():
+        try:
+            with open(metadata_path, 'r', encoding='utf-8') as fh:
+                return json.load(fh)
+        except Exception:
+            return {}
+
+    data = await asyncio.to_thread(_read)
+    url = data.get(str(profile_id))
+    if not url:
+        raise HTTPException(status_code=404, detail="Not found")
+    return {"url": url}
 
 
 # ── Bulk delete ────────────────────────────────────────────────────────────────
