@@ -1149,7 +1149,37 @@
     <div class="modal-overlay" id="edit-overlay">
       <div class="modal">
         <div class="modal-header">
-          <div class="modal-title" id="modal-title">Add Profile</div>
+          <div
+            style="display: flex; gap: 12px; align-items: center; width: 100%"
+          >
+            <div class="modal-title" id="modal-title">Add Profile</div>
+            <!-- Profile image thumbnail for Edit modal (hidden when none) -->
+            <div
+              id="edit-photo"
+              style="
+                margin-left: auto;
+                display: none;
+                width: 48px;
+                height: 48px;
+                overflow: hidden;
+                border-radius: 50%;
+                background: #0f1724;
+              "
+            >
+              <img
+                id="edit-photo-img"
+                src="about:blank"
+                alt="Profile"
+                style="
+                  width: 48px;
+                  height: 48px;
+                  border-radius: 50%;
+                  object-fit: cover;
+                  display: block;
+                "
+              />
+            </div>
+          </div>
           <button class="modal-close" onclick="closeModal()">✕</button>
         </div>
         <div class="modal-tabs">
@@ -2007,6 +2037,37 @@
             document.getElementById("f-ig-verified").value = boolToSelectVal(
               p.instagram_verified_status,
             );
+            // Fetch persisted profile image (if any) and show thumbnail
+            (async () => {
+              try {
+                const ru = await fetch(`/api/profiles/${id}/upload`, {
+                  cache: "no-store",
+                });
+                if (!ru.ok) {
+                  // show placeholder thumbnail if no uploaded image
+                  const img = document.getElementById("edit-photo-img");
+                  img.src = "/static/img/avatar-placeholder.svg";
+                  const box = document.getElementById("edit-photo");
+                  if (box) box.style.display = "inline-block";
+                  return;
+                }
+                const d = await ru.json();
+                if (d && d.url) {
+                  const img = document.getElementById("edit-photo-img");
+                  img.src = d.url;
+                  const box = document.getElementById("edit-photo");
+                  if (box) box.style.display = "inline-block";
+                } else {
+                  // no url in response — show placeholder
+                  const img = document.getElementById("edit-photo-img");
+                  img.src = "/static/img/avatar-placeholder.svg";
+                  const box = document.getElementById("edit-photo");
+                  if (box) box.style.display = "inline-block";
+                }
+              } catch (e) {
+                console.error("openEdit: failed to fetch profile image", e);
+              }
+            })();
           })
           .catch(() => showToast("Failed to load profile", "error"));
         switchTab(0);
@@ -2043,6 +2104,11 @@
         ].forEach((id) => {
           document.getElementById(id).value = "";
         });
+        // clear and hide profile thumbnail in edit modal
+        const img = document.getElementById("edit-photo-img");
+        const box = document.getElementById("edit-photo");
+        if (img) img.src = "about:blank";
+        if (box) box.style.display = "none";
       }
 
       function closeModal() {
